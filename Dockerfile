@@ -40,7 +40,10 @@ RUN git clone https://github.com/jpmorganchase/quorum.git && \
 RUN chmod +x /quorum/build/bin/* && \
     cp /quorum/build/bin/* /usr/local/bin && \
     chmod +x /ubuntu1604/* && \
-    cp /ubuntu1604/constellation* /usr/local/bin
+    cp /ubuntu1604/constellation* /usr/local/bin && \
+    rm -rf quorum && \
+    rm -rf ubuntu1604 && \
+    rm -f ubuntu1604.zip
 
 COPY config /quorum-node/config
 COPY keys /quorum-node/keys

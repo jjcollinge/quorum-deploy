@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export NODE_ROOT="$PWD/quorum-node"
+export NODE_ROOT="/quorum-node"
 export TEMP_PATH="$NODE_ROOT/temp"
 export DATA_PATH="$TEMP_PATH/data"
 export CONFIG_PATH="$NODE_ROOT/config"
