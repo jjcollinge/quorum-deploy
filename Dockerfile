@@ -48,7 +48,8 @@ RUN chmod +x /quorum/build/bin/* && \
 COPY config /quorum-node/config
 COPY keys /quorum-node/keys
 COPY start.sh /quorum-node/start.sh
-RUN chmod +x /quorum-node/start.sh
+RUN chmod +x /quorum-node/start.sh \
+    /quorum-node/config/gethbootstrap.sh
 
 WORKDIR /quorum-node
 
