@@ -10,19 +10,26 @@ BOOTNODE_LOG="$TEMP_PATH/logs/bootnode.log"
 CONSTELLATION_LOG="$TEMP_PATH/logs/constellation.log"
 export GETH_LOG="$TEMP_PATH/logs/geth.log"
 
-mkdir -p $KEYS_PATH
 mkdir -p $TEMP_PATH/logs
 touch $SCRIPT_LOG $BOOTNODE_LOG $CONSTELLATION_LOG $GETH_LOG
 
-echo "Creating new Geth account" >>$SCRIPT_LOG
-geth account new
-GETH_KEY_FILE=$(geth account list | tail -n1 | awk '{print $4}')
-cp $GETH_KEY_FILE "$KEYS_PATH/key"
+if ls "$KEYS_PATH/key*" 1> /dev/null 2>&1; then
+    echo "Using existing Geth key file" >>$SCRIPT_LOG
+else
+    echo "Creating new Geth account" >>$SCRIPT_LOG
+    geth account new
+    GETH_KEY_FILE=$(geth account list | tail -n1 | awk '{print $4}')
+    cp $GETH_KEY_FILE "$KEYS_PATH/key"
+fi
 
-echo "Creating new Constellation keys" >>$SCRIPT_LOG
-constellation-enclave-keygen node
-constellation-enclave-keygen nodea
-mv node.* nodea.* $KEYS_PATH
+if [[ ! -f "$KEYS_PATH/node.pub" ]] || [[ ! -f "$KEYS_PATH/node.key" ]] || [[ ! -f "$KEYS_PATH/nodea.pub" ]] || [[ ! -f "$KEYS_PATH/nodea.key" ]]; then
+    echo "Creating new Constellation keys" >>$SCRIPT_LOG
+    constellation-enclave-keygen node
+    constellation-enclave-keygen nodea
+    mv node.* nodea.* $KEYS_PATH
+else
+    echo "Using existing constellation keys" >>$SCRIPT_LOG
+fi
 
 # Source enviroment file
 . $CONFIG_PATH/env.sh
