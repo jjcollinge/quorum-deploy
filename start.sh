@@ -57,9 +57,11 @@ then
     sleep 6
 fi
 
+cp "$CONFIG_PATH/node.conf" .
+
 # Start local constellation
 echo "Starting constellation" >>$SCRIPT_LOG
-nohup constellation-node "$CONFIG_PATH/node.conf" 2>>$CONSTELLATION_LOG &
+nohup constellation-node node.conf 2>>$CONSTELLATION_LOG &
 
 sleep 10
 # Set geth arguments

@@ -42,10 +42,11 @@ RUN chmod +x /quorum/build/bin/* && \
     chmod +x /ubuntu1604/* && \
     cp /ubuntu1604/constellation* /usr/local/bin
 
-COPY start.sh /start.sh
-RUN chmod +x start.sh
-
 COPY config /quorum-node/config
 COPY keys /quorum-node/keys
+COPY start.sh /quorum-node/start.sh
+RUN chmod +x /quorum-node/start.sh
+
+WORKDIR /quorum-node
 
 ENTRYPOINT ["./start.sh"]
