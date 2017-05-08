@@ -7,23 +7,28 @@ Quorum node is a simply way to spin up a new quorum node in a Docker container. 
 git clone https://github.com/jjcollinge/quorum-node.git
 ```
 
-2. Rename the example configuration files by running the commands
+2. Rename the example configuration files in the `config` directory by running this command
 ```
- mv env.sh.example env.sh && \
- mv genesis.json.example genesis.json && \
- mv gethbootstrap.sh.example gethbootstrap.sh && \
- mv node.conf.example node.conf
+cd quorum-node/config && \
+mv env.sh.example env.sh && \
+mv genesis.json.example genesis.json && \
+mv gethbootstrap.sh.example gethbootstrap.sh && \
+mv node.conf.example node.conf
 ```
 
-3. Customise the configuration files `/quorum-node/config` to suitable values for your network.
+3. Customise the configuration files `quorum-node/config` to map to your desired network configuration.
 
-4. (Optional) Generate constellation and geth keys and store them in `/quorum-node/keys`. Alternatively, generate the keys at runtime using the second run command below.
+4. (Optional) Generate constellation and/or geth keys and store them in `/quorum-node/keys`. Alternatively, generate the keys at runtime by using the command shown in step 6.2 below.
 
-5. Build the container; `docker built -t ext-node .`
+5. Build the container from the Dockerfile: `docker built -t ext-node .`
 
 6. Run the container;
     1. for pre-generated keys: `docker run -d --net=host ext-node`
     2. To generate keys: `docker run -it --net=host ext-node`
+
+**NOTE** You can ONLY currently generate keys for an observer node. If you want to configure your node as a voter or a blockmaker, then please generate the keys beforehand and provide the necessary geth arguments in `quorum-node/config/gethbootstrap.sh`
+
+**WARNING** The initial build of the quorum-node docker image will take a little while, however, subsequent builds will use the local cache and will be considerably faster.
 
 
 
