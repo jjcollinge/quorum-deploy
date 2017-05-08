@@ -1,13 +1,13 @@
 #!/bin/bash
 
-NODE_ROOT="$PWD/quorum-node"
-TEMP_PATH="$NODE_ROOT/temp"
+export NODE_ROOT="$PWD/quorum-node"
+export TEMP_PATH="$NODE_ROOT/temp"
 export DATA_PATH="$TEMP_PATH/data"
-CONFIG_PATH="$NODE_ROOT/config"
-KEYS_PATH="$NODE_ROOT/keys"
-SCRIPT_LOG="$TEMP_PATH/logs/script.log"
-BOOTNODE_LOG="$TEMP_PATH/logs/bootnode.log"
-CONSTELLATION_LOG="$TEMP_PATH/logs/constellation.log"
+export CONFIG_PATH="$NODE_ROOT/config"
+export KEYS_PATH="$NODE_ROOT/keys"
+export SCRIPT_LOG="$TEMP_PATH/logs/script.log"
+export BOOTNODE_LOG="$TEMP_PATH/logs/bootnode.log"
+export CONSTELLATION_LOG="$TEMP_PATH/logs/constellation.log"
 export GETH_LOG="$TEMP_PATH/logs/geth.log"
 
 mkdir -p $TEMP_PATH/logs
