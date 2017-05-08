@@ -48,4 +48,6 @@ RUN chmod +x start.sh
 COPY config /quorum-node/config
 COPY keys /quorum-node/keys
 
-ENTRYPOINT ["/bin/bash"]
+WORKDIR /quorum-node
+
+ENTRYPOINT ["./start.sh"]
