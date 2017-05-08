@@ -7,11 +7,13 @@ Quorum node is a simply way to spin up a new quorum node in a Docker container. 
 
 2. Customise the configuration files `/quorum-node/config` to suitable values for your network.
 
-3. (Optional) Generate constellation and geth keys and store them in `/quorum-node/keys`, alternatively, you can dynamically create this by providing an empty keys folder.
+3. (Optional) Generate constellation and geth keys and store them in `/quorum-node/keys`. Alternatively, generate the keys at runtime using the second run command below.
 
 3. Build the container; `docker built -t ext-node .`
 
-4. Run the container; `docker run -d --net=host ext-node`
+4. Run the container;
+    1. for pre-generated keys: `docker run -d --net=host ext-node`
+    2. To generate keys: `docker run -it --net=host ext-node`
 
 
 
