@@ -4,7 +4,6 @@ Quorum node is a simple way to spin up a new Quorum node in a Docker container. 
 ## Prerequisites
 * Linux
 * Docker
-* A Quorum genesis file. If you do not have an existing genesis file. One can be created using [this tool](https://github.com/davebryson/quorum-genesis).
 
 ## Configuring your node
 If you do not have existing keys and config, you can use the `node-builder.sh` script to help configure your node.
@@ -28,6 +27,8 @@ cd quorum-node && ./node-builder.sh
 4. Follow the on screen instructions to configure your Quorum node
 
 If you do not wish to use the helper script, you can manually modify the file in the `config` folder to setup your node.
+
+If you do not have an existing Quorum genesis.json file. You can create one using [this tool](https://github.com/davebryson/quorum-genesis). If you are standing up a new network, you can configure multiple nodes using this repo and then retrospectively create the genesis.json based on the generated network addresses of your nodes. You won't be able to bring the network up until the genesis.json has been created and distributed into each node's config folder.
 
 ## Build your node
 Once you've configured your Quorum node, you can package it up as a portable docker image using the following command:
