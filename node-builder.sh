@@ -40,31 +40,33 @@ else
         mv config/gethbootstrap.sh.example config/gethbootstrap.sh && \
         mv config/node.conf.example config/node.conf
     else
-        echo "Unknown config state, this could be dangerous"
+        echo "Unknown config state, this could be dangerous..."
     fi
 fi
+
+echo
+echo "..............."
+echo "Account details"
+echo "..............."
 echo
 
-echo "Is this account a voter? [y/n]"
+echo "Can this account vote? [y/n]"
 read IS_VOTER
 while ([[ $IS_VOTER != "y" && $IS_VOTER != "n" ]]); do
     echo "$IS_VOTER is not a valid input, please try again."
-    echo "Is this account a voter? [y/n]"
+    echo "Can this account vote? [y/n]"
     read isVoter
 done
 
-echo
-echo "Is this account a block maker? [y/n]"
+echo "Can this account make blocks? [y/n]"
 read IS_BLOCKMAKER
 while ([[ $IS_BLOCKMAKER != "y" && $IS_BLOCKMAKER != "n" ]]); do
     echo "$IS_BLOCKMAKER is not a valid input, please try again."
-    echo "Is this account a block maker? [y/n]"
+    echo "Can this account make blocks? [y/n]"
     read isBlockmaker
 done
 
-echo
-echo "Creating new Geth account..."
-echo "Please provide a passphrase for your new account"
+echo "Please provide a passphrase to secure your account"
 read PASSPHRASE
 echo $PASSPHRASE >> .pp_tmp
 geth --password .pp_tmp account new
@@ -73,21 +75,14 @@ GETH_KEY_FILE=$(geth account list | tail -n1 | awk '{print $4}')
 GETH_ACCOUNT=$(geth account list | tail -n1 | awk '{print $3}')
 GETH_ACCOUNT=${GETH_ACCOUNT:1:-1}
 cp $GETH_KEY_FILE "keys/key"
-echo "Created"
-echo
-
-echo
-echo "Creating new Constellation keys..."
 constellation-enclave-keygen node
 constellation-enclave-keygen nodea
 mv node.* nodea.* "keys/"
-echo "Created"
-echo
 
 if [[ $IS_VOTER == "y" && $IS_BLOCKMAKER == "y" ]]; then
     echo "Initialising account as voter and a block maker"
-    echo "Creating additional Geth account..."
-    echo "Please provide a passphrase for your new account"
+    echo "Creating secondary Geth account"
+    echo "Please provide a passphrase to secure your secondary account"
     read SECONDARY_PASSPHRASE
     echo $SECONDARY_PASSPHRASE >> .pp_tmp
     geth --password .pp_tmp account new
@@ -96,7 +91,6 @@ if [[ $IS_VOTER == "y" && $IS_BLOCKMAKER == "y" ]]; then
     SECONDARY_GETH_ACCOUNT=$(geth account list | tail -n1 | awk '{print $3}')
     SECONDARY_GETH_ACCOUNT=${SECONDARY_GETH_ACCOUNT:1:-1}
     cp $SECONDARY_GETH_KEY_FILE "keys/key1"
-    echo "Created"
     sed -i -e "s/__GETH_ARGS__/--voteaccount \"0x$GETH_ACCOUNT\" --votepassword \"$PASSPHRASE\" --blockmakeraccount \"0x$SECONDARY_GETH_ACCOUNT\" --blockmakerpassword \"$SECONDARY_PASSPHRASE\"/g" config/gethbootstrap.sh
 elif [[ $IS_VOTER == "y" ]]; then
     echo "Initialising account as voter"
@@ -107,7 +101,11 @@ elif [[ $IS_BLOCKMAKER == "y" ]]; then
 fi
 
 echo
-echo "Gathering network details"
+echo "..............."
+echo "Network details"
+echo "..............."
+echo
+
 echo "Constellation URL (i.e. http://localhost:9000/): "
 read CONSTELLATION_URL
 echo "Constellation port: "
@@ -122,7 +120,6 @@ while ([[ $BOOTNODE_EXISTS != "y" && $BOOTNODE_EXISTS != "n" ]]); do
     read BOOTNODE_EXISTS
 done
 if [[ $BOOTNODE_EXISTS == "y" ]]; then
-    echo "Gathering bootnode details"
     echo "Bootnode's public IP: "
     read BOOTNODE_IP
 else
@@ -142,7 +139,12 @@ read GETH_PORT
 echo "Geth network id: "
 read GETH_NETWORK_ID
 
+echo
+echo "..............."
 echo "Writing config"
+echo "..............."
+echo
+
 sed -i -e "s/__BOOTNODE_IP__/$BOOTNODE_IP/g" config/env.sh
 sed -i -e "s/__BOOTNODE_PORT__/$BOOTNODE_PORT/g" config/env.sh
 sed -i -e "s/__BOOTNODE_HEX_KEY__/$BOOTNODE_HEY_KEY/g" config/env.sh
@@ -163,4 +165,8 @@ done
 STRINGIFIED=${STRINGIFIED::-1}
 sed -i -e "s@__OTHER_CONSTELLATION_URLS__@$STRINGIFIED@g" config/node.conf
 
-echo "Quorum node configured"
+echo
+echo "..............."
+echo "Finished script"
+echo "..............."
+echo
