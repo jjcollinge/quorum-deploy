@@ -14,6 +14,7 @@ if [[ ! -d "keys" ]]; then
 fi
 
 if ls config/*.example 1> /dev/null 2>&1; then
+    cp config/*.example config/.temp
     mv config/env.sh.example config/env.sh && \
     mv config/genesis.json.example config/genesis.json && \
     mv config/gethbootstrap.sh.example config/gethbootstrap.sh && \
@@ -30,6 +31,15 @@ else
         echo "Exiting"
         exit 1
     fi
+    if ls config/*.temp 1> /dev/null 2>&1; then
+        echo "Resetting config"
+        cp config/.temp config/
+        mv config/env.sh.example config/env.sh && \
+        mv config/genesis.json.example config/genesis.json && \
+        mv config/gethbootstrap.sh.example config/gethbootstrap.sh && \
+        mv config/node.conf.example config/node.conf
+    else
+        echo "Unknown config state, this could be dangerous"
 fi
 echo
 
@@ -85,13 +95,13 @@ if [[ $IS_VOTER == "y" && $IS_BLOCKMAKER == "y" ]]; then
     SECONDARY_GETH_ACCOUNT=${SECONDARY_GETH_ACCOUNT:1:-1}
     cp $SECONDARY_GETH_KEY_FILE "keys/key"
     echo "Created"
-    sed -i -e "s/__GETH_ARGS__/--voteaccount $GETH_ACCOUNT --votepassword $PASSPHRASE --blockmakeraccount $SECONDARY_GETH_ACCOUNT --blockmakerpassword $SECONDARY_PASSPHRASE/g" config/gethbootstrap.sh
+    sed -i -e "s/__GETH_ARGS__/--voteaccount $GETH_ACCOUNT --votepassword \"$PASSPHRASE\" --blockmakeraccount $SECONDARY_GETH_ACCOUNT --blockmakerpassword $SECONDARY_PASSPHRASE/g" config/gethbootstrap.sh
 elif [[ $IS_VOTER == "y" ]]; then
     echo "Initialising account as voter"
-    sed -i -e "s/__GETH_ARGS__/--voteaccount $GETH_ACCOUNT --votepassword $PASSPHRASE/g" config/gethbootstrap.sh
+    sed -i -e "s/__GETH_ARGS__/--voteaccount $GETH_ACCOUNT --votepassword \"$PASSPHRASE\"/g" config/gethbootstrap.sh
 elif [[ $IS_BLOCKMAKER == "y" ]]; then
     echo "Initialising account as block maker"
-    sed -i -e "s/__GETH_ARGS__/--blockmakeraccount $GETH_ACCOUNT --blockmakerpassword $PASSPHRASE/g" config/gethbootstrap.sh
+    sed -i -e "s/__GETH_ARGS__/--blockmakeraccount $GETH_ACCOUNT --blockmakerpassword \"$PASSPHRASE\"/g" config/gethbootstrap.sh
 fi
 
 echo
