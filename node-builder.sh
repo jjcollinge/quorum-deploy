@@ -33,7 +33,7 @@ else
     fi
     if ls config/*.temp 1> /dev/null 2>&1; then
         echo "Resetting config"
-        cp config/.temp config/
+        cp config/.temp config/ && \
         mv config/env.sh.example config/env.sh && \
         mv config/genesis.json.example config/genesis.json && \
         mv config/gethbootstrap.sh.example config/gethbootstrap.sh && \
@@ -162,6 +162,3 @@ STRINGIFIED=${STRINGIFIED::-1}
 sed -i -e "s@__OTHER_CONSTELLATION_URLS__@$STRINGIFIED@g" config/node.conf
 
 echo "Quorum node configured"
-
-
-
