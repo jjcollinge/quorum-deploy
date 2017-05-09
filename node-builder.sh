@@ -86,11 +86,11 @@ fi
 
 echo "Gathering network details"
 echo "Constellation URL (i.e. http://localhost:9000/): "
-read $CONSTELLATION_URL
+read CONSTELLATION_URL
 echo "Constellation port: "
-read $CONSTELLATION_PORT
+read CONSTELLATION_PORT
 echo "Other node constellation urls as comma separated strings (i.e. \"http://localhost:9000/\",\"http://localhost:9001/\"): "
-read $OTHER_CONSTELLATION_URLS
+read OTHER_CONSTELLATION_URLS
 echo "Is there an existing bootnode to connect to? [y/n]"
 read $BOOTNODE_EXISTS
 while ([[ $BOOTNODE_EXISTS != "y" && $BOOTNODE_EXISTS != "n" ]]); do
@@ -115,11 +115,11 @@ read BOOTNODE_PUBLIC_KEY
 
 echo "Quorum node config"
 echo "RPC port: "
-read $RPC_PORT
+read RPC_PORT
 echo "Geth port"
-read $GETH_PORT
+read GETH_PORT
 echo "Geth network id"
-read $GETH_NETWORK_ID
+read GETH_NETWORK_ID
 
 echo "Writing config"
 sed -i -e "s/__BOOTNODE_IP__/$BOOTNODE_IP/g" config/env.sh
