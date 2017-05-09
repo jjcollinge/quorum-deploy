@@ -58,7 +58,8 @@ echo $PASSPHRASE >> .pp_tmp
 geth --password .pp_tmp account new
 rm .pp_tmp
 GETH_KEY_FILE=$(geth account list | tail -n1 | awk '{print $4}')
-GETH_ACCOUNT=$(geth account list | tail -n1 | awk '{print $1}')
+GETH_ACCOUNT=$(geth account list | tail -n1 | awk '{print $3}')
+GETH_ACCOUNT=${GETH_ACCOUNT:1:-1}
 cp $GETH_KEY_FILE "keys/key"
 echo "Created"
 echo
@@ -80,7 +81,8 @@ if [[ $IS_VOTER == "y" && $IS_BLOCKMAKER == "y" ]]; then
     geth --password .pp_tmp account new
     rm .pp_tmp
     SECONDARY_GETH_KEY_FILE=$(geth account list | tail -n1 | awk '{print $4}')
-    SECONDARY_GETH_ACCOUNT=$(geth account list | tail -n1 | awk '{print $1}')
+    SECONDARY_GETH_ACCOUNT=$(geth account list | tail -n1 | awk '{print $3}')
+    SECONDARY_GETH_ACCOUNT=${SECONDARY_GETH_ACCOUNT:1:-1}
     cp $SECONDARY_GETH_KEY_FILE "keys/key"
     echo "Created"
     sed -i -e "s/__GETH_ARGS__/--voteaccount $GETH_ACCOUNT --votepassword $PASSPHRASE --blockmakeraccount $SECONDARY_GETH_ACCOUNT --blockmakerpassword $SECONDARY_PASSPHRASE/g" config/gethbootstrap.sh
