@@ -1,34 +1,54 @@
 # Quorum Node
-Quorum node is a simply way to spin up a new quorum node in a Docker container. The node can be configured to stand alone, initialise a new network or join an existing Quorum network.
+Quorum node is a simple way to spin up a new quorum node in a Docker container. The node can be configured to be stand-a-lone or connect to an existing network
 
-## Usage
-1. Firstly clone the repository to your local machine
+## Configuring your node
+If you do not have existing keys and config, you can use the `node-builder.sh` script to help configure your node.
+
+follow the below steps to configure a new node:
+1. Clone the repository to your local machine
 ```
 git clone https://github.com/jjcollinge/quorum-node.git
 ```
 
-2. Rename the example configuration files in the `config` directory by running this command
+2. Change the permissions on the scripts to allow them to run
 ```
-cd quorum-node/config && \
-mv env.sh.example env.sh && \
-mv genesis.json.example genesis.json && \
-mv gethbootstrap.sh.example gethbootstrap.sh && \
-mv node.conf.example node.conf
+chmod +x quorum-node/*.sh
 ```
 
-3. Customise the configuration files in the `quorum-node/config` directory to map to your desired network configuration.
+3. Run the `node-builder.sh` script
+```
+cd quorum-node && ./node-builder.sh
+```
 
-4. (Optional) Generate constellation and/or geth keys and store them in `/quorum-node/keys`. Alternatively, generate the keys at runtime by using the command shown in step 6.2 below.
+4. Follow the on screen instructions to configure your Quorum node.
 
-5. Build the container from the Dockerfile: `docker built -t ext-node .`
+If you do not wish to use the helper script, you can manually modify the file in the `config` folder to setup your node.
 
-6. Run the container;
-    1. for pre-generated keys: `docker run -d --net=host ext-node`
-    2. To generate keys: `docker run -it --net=host ext-node`
-
-**NOTE** You can ONLY currently generate keys for an observer node. If you want to configure your node as a voter or a blockmaker, then please generate the keys beforehand and provide the necessary geth arguments in `quorum-node/config/gethbootstrap.sh`
-
+## Build your node
+Once you've configured your Quorum node, you can package it up a portable docker images using the following command:
+```
+docker build -t myqnode .
+```
 **WARNING** The initial build of the quorum-node docker image will take a little while, however, subsequent builds will use the local cache and will be considerably faster.
+
+## Run your node
+Finally, you can run your node using a similar command to the one below:
+```
+docker run -d --net=host myqnode
+```
+
+## Inspect your node
+If you want to inspect your running node follow these instructions.
+1. Get the docker container id from the list of containers
+```
+docker ps
+```
+2. Enter a new shell inside the container
+```
+docker exec -it <container_id> /bin/bash
+```
+
+Now that you are inside the container, you can view the logs in the `temp/logs/` folder. You can also attach to the running geth instance using `geth attach temp/data/geth.ipc`.
 
 
 
