@@ -95,7 +95,7 @@ if [[ $IS_VOTER == "y" && $IS_BLOCKMAKER == "y" ]]; then
     SECONDARY_GETH_KEY_FILE=$(geth account list | tail -n1 | awk '{print $4}')
     SECONDARY_GETH_ACCOUNT=$(geth account list | tail -n1 | awk '{print $3}')
     SECONDARY_GETH_ACCOUNT=${SECONDARY_GETH_ACCOUNT:1:-1}
-    cp $SECONDARY_GETH_KEY_FILE "keys/key"
+    cp $SECONDARY_GETH_KEY_FILE "keys/key1"
     echo "Created"
     sed -i -e "s/__GETH_ARGS__/--voteaccount $GETH_ACCOUNT --votepassword \"$PASSPHRASE\" --blockmakeraccount $SECONDARY_GETH_ACCOUNT --blockmakerpassword \"$SECONDARY_PASSPHRASE\"/g" config/gethbootstrap.sh
 elif [[ $IS_VOTER == "y" ]]; then
