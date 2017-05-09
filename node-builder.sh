@@ -1,13 +1,8 @@
 #!/bin/bash
 
-echo
-echo "-------------------"
-echo "Quorum node builder"
-echo "-------------------"
-echo
-
-echo "This script will try to help you configure a Quorum node"
-echo
+echo "///////////////////"
+echo "Quorum Node Builder"
+echo "///////////////////"
 
 if [[ ! -d "keys" ]]; then
     mkdir -p keys
@@ -138,12 +133,6 @@ echo "Geth port: "
 read GETH_PORT
 echo "Geth network id: "
 read GETH_NETWORK_ID
-
-echo
-echo "..............."
-echo "Writing config"
-echo "..............."
-echo
 
 sed -i -e "s/__BOOTNODE_IP__/$BOOTNODE_IP/g" config/env.sh
 sed -i -e "s/__BOOTNODE_PORT__/$BOOTNODE_PORT/g" config/env.sh
