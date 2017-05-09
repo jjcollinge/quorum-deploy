@@ -6,11 +6,15 @@ echo "Quorum node builder"
 echo "-------------------"
 echo
 
+echo "This script will help you configure a Quorum node"
+echo
+
 if [[ ! -d "keys" ]]; then
     mkdir -p keys
 fi
 
 echo "Creating config"
+echo
 if ls config/*.example 1> /dev/null 2>&1; then
     mv config/env.sh.example config/env.sh && \
     mv config/genesis.json.example config/genesis.json && \
@@ -29,6 +33,7 @@ else
         exit 1
     fi
 fi
+echo
 
 echo "Is this account a voter? [y/n]"
 read IS_VOTER
@@ -38,6 +43,7 @@ while ([[ $IS_VOTER != "y" && $IS_VOTER != "n" ]]); do
     read isVoter
 done
 
+echo
 echo "Is this account a block maker? [y/n]"
 read IS_BLOCKMAKER
 while ([[ $IS_BLOCKMAKER != "y" && $IS_BLOCKMAKER != "n" ]]); do
@@ -46,6 +52,7 @@ while ([[ $IS_BLOCKMAKER != "y" && $IS_BLOCKMAKER != "n" ]]); do
     read isBlockmaker
 done
 
+echo
 echo "Creating new Geth account..."
 echo "Please provide a passphrase for your new account"
 read PASSPHRASE
@@ -56,12 +63,15 @@ GETH_KEY_FILE=$(geth account list | tail -n1 | awk '{print $4}')
 GETH_ACCOUNT=$(geth account list | tail -n1 | awk '{print $1}')
 cp $GETH_KEY_FILE "keys/key"
 echo "Created"
+echo
 
+echo
 echo "Creating new Constellation keys..."
 constellation-enclave-keygen node
 constellation-enclave-keygen nodea
 mv node.* nodea.* "keys/key"
 echo "Created"
+echo
 
 if [[ $IS_VOTER == "y" && $IS_BLOCKMAKER == "y" ]]; then
     echo "Initialising account as voter and a block maker"
@@ -84,12 +94,15 @@ elif [[ $IS_BLOCKMAKER == "y" ]]; then
     sed -i -e "s/__GETH_ARGS__/--blockmakeraccount $GETH_ACCOUNT --blockmakerpassword $PASSPHRASE/g" config/gethbootstrap.sh
 fi
 
+echo
 echo "Gathering network details"
+echo
+
 echo "Constellation URL (i.e. http://localhost:9000/): "
 read CONSTELLATION_URL
 echo "Constellation port: "
 read CONSTELLATION_PORT
-echo "Other node constellation urls as comma separated strings (i.e. \"http://localhost:9000/\",\"http://localhost:9001/\"): "
+echo "Other node constellation urls as comma separated strings (i.e. http://localhost:9000/,http://localhost:9001/): "
 read OTHER_CONSTELLATION_URLS
 echo "Is there an existing bootnode to connect to? [y/n]"
 read $BOOTNODE_EXISTS
@@ -112,13 +125,11 @@ echo "Bootnode's hex key: "
 read BOOTNODE_HEY_KEY
 echo "Bootnode's public key: "
 read BOOTNODE_PUBLIC_KEY
-
-echo "Quorum node config"
 echo "RPC port: "
 read RPC_PORT
-echo "Geth port"
+echo "Geth port: "
 read GETH_PORT
-echo "Geth network id"
+echo "Geth network id: "
 read GETH_NETWORK_ID
 
 echo "Writing config"
@@ -133,7 +144,7 @@ sed -i -e "s/__GETH_NETWORK_ID__/$GETH_NETWORK_ID/g" config/env.sh
 
 sed -i -e "s/__CONSTELLATION_URL__/$CONSTELLATION_URL/g" config/node.conf
 sed -i -e "s/__CONSTELLATION_PORT__/$CONSTELLATION_PORT/g" config/node.conf
-sed -i -e "s/__OTHER_CONSTELLATION_URLS__/$OTHER_CONSTELLATION_URLS/g" config/node.conf
+sed -i -e "s/__OTHER_CONSTELLATION_URLS__/\"$OTHER_CONSTELLATION_URLS\"/g" config/node.conf
 
 echo "Quorum node configured"
 
