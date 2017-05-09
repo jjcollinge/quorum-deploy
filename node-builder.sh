@@ -19,7 +19,7 @@ if ls config/*.example 1> /dev/null 2>&1; then
 else
     echo "Existing config files exists, are you sure you want to override? [y/n]"
     read OVERRIDE
-    while ([[ ! $OVERRIDE == "y"]] && [[ ! $OVERRIDE == "n" ]]); do
+    while ([[ $OVERRIDE != "y" && $OVERRIDE != "n" ]]); do
         echo "$OVERRIDE is not a valid input, please try again."
         echo "Existing config files exists, are you sure you want to override? [y/n]"
         read OVERRIDE
@@ -32,7 +32,7 @@ fi
 
 echo "Is this account a voter? [y/n]"
 read IS_VOTER
-while ([[ ! $IS_VOTER == "y"]] && [[ ! $IS_VOTER == "n" ]]); do
+while ([[ $IS_VOTER != "y" && $IS_VOTER != "n" ]]); do
     echo "$IS_VOTER is not a valid input, please try again."
     echo "Is this account a voter? [y/n]"
     read isVoter
@@ -40,7 +40,7 @@ done
 
 echo "Is this account a block maker? [y/n]"
 read IS_BLOCKMAKER
-while ([[ ! $IS_BLOCKMAKER == "y"]] && [[ ! $IS_BLOCKMAKER == "n" ]]); do
+while ([[ $IS_BLOCKMAKER != "y" && $IS_BLOCKMAKER != "n" ]]); do
     echo "$IS_BLOCKMAKER is not a valid input, please try again."
     echo "Is this account a block maker? [y/n]"
     read isBlockmaker
@@ -63,7 +63,7 @@ constellation-enclave-keygen nodea
 mv node.* nodea.* "keys/key"
 echo "Created"
 
-if [[ $IS_VOTER == "y" ]] && [[ $IS_BLOCKMAKER == "y" ]]; then
+if [[ $IS_VOTER == "y" && $IS_BLOCKMAKER == "y" ]]; then
     echo "Initialising account as voter and a block maker"
     echo "Creating additional Geth account..."
     echo "Please provide a passphrase for your new account"
@@ -93,7 +93,7 @@ echo "Other node constellation urls as comma separated strings (i.e. \"http://lo
 read $OTHER_CONSTELLATION_URLS
 echo "Is there an existing bootnode to connect to? [y/n]"
 read $BOOTNODE_EXISTS
-while ([[ ! $BOOTNODE_EXISTS == "y"]] && [[ ! $BOOTNODE_EXISTS == "n" ]]); do
+while ([[ $BOOTNODE_EXISTS != "y" && $BOOTNODE_EXISTS != "n" ]]); do
     echo "$BOOTNODE_EXISTS is not a valid input, please try again."
     echo "Is there an existing bootnode to connect to? [y/n]"
     read BOOTNODE_EXISTS
