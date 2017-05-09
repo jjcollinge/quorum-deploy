@@ -80,7 +80,7 @@ echo
 echo "Creating new Constellation keys..."
 constellation-enclave-keygen node
 constellation-enclave-keygen nodea
-mv node.* nodea.* "keys/key"
+mv node.* nodea.* "keys/"
 echo "Created"
 echo
 
