@@ -40,6 +40,7 @@ else
         mv config/node.conf.example config/node.conf
     else
         echo "Unknown config state, this could be dangerous"
+    fi
 fi
 echo
 
