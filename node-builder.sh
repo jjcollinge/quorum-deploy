@@ -14,6 +14,7 @@ if [[ ! -d "keys" ]]; then
 fi
 
 if ls config/*.example 1> /dev/null 2>&1; then
+    mkdir -p config/.temp
     cp config/*.example config/.temp
     mv config/env.sh.example config/env.sh && \
     mv config/genesis.json.example config/genesis.json && \
@@ -33,7 +34,7 @@ else
     fi
     if ls config/*.temp 1> /dev/null 2>&1; then
         echo "Resetting config"
-        cp config/.temp config/ && \
+        cp config/.temp/* config/ && \
         mv config/env.sh.example config/env.sh && \
         mv config/genesis.json.example config/genesis.json && \
         mv config/gethbootstrap.sh.example config/gethbootstrap.sh && \
