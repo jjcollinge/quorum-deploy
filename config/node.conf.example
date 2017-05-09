@@ -1,7 +1,7 @@
-url = "http://127.0.0.1:9000/"
-port = 9000
+url = "__CONSTELLATION_URL__"
+port = __CONSTELLATION_PORT__
 socketPath = "tempdata/node.ipc"
-otherNodeUrls = []
+otherNodeUrls = [__OTHER_CONSTELLATION_URLS__]
 publicKeyPath = "keys/node.pub"
 privateKeyPath = "keys/node.key"
 archivalPublicKeyPath = "keys/nodea.pub"
