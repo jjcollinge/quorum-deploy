@@ -97,13 +97,13 @@ if [[ $IS_VOTER == "y" && $IS_BLOCKMAKER == "y" ]]; then
     SECONDARY_GETH_ACCOUNT=${SECONDARY_GETH_ACCOUNT:1:-1}
     cp $SECONDARY_GETH_KEY_FILE "keys/key1"
     echo "Created"
-    sed -i -e "s/__GETH_ARGS__/--voteaccount $GETH_ACCOUNT --votepassword \"$PASSPHRASE\" --blockmakeraccount $SECONDARY_GETH_ACCOUNT --blockmakerpassword \"$SECONDARY_PASSPHRASE\"/g" config/gethbootstrap.sh
+    sed -i -e "s/__GETH_ARGS__/--voteaccount \"0x$GETH_ACCOUNT\" --votepassword \"$PASSPHRASE\" --blockmakeraccount \"0x$SECONDARY_GETH_ACCOUNT\" --blockmakerpassword \"$SECONDARY_PASSPHRASE\"/g" config/gethbootstrap.sh
 elif [[ $IS_VOTER == "y" ]]; then
     echo "Initialising account as voter"
-    sed -i -e "s/__GETH_ARGS__/--voteaccount $GETH_ACCOUNT --votepassword \"$PASSPHRASE\"/g" config/gethbootstrap.sh
+    sed -i -e "s/__GETH_ARGS__/--voteaccount \"0x$GETH_ACCOUNT\" --votepassword \"$PASSPHRASE\"/g" config/gethbootstrap.sh
 elif [[ $IS_BLOCKMAKER == "y" ]]; then
     echo "Initialising account as block maker"
-    sed -i -e "s/__GETH_ARGS__/--blockmakeraccount $GETH_ACCOUNT --blockmakerpassword \"$PASSPHRASE\"/g" config/gethbootstrap.sh
+    sed -i -e "s/__GETH_ARGS__/--blockmakeraccount \"0x$GETH_ACCOUNT\" --blockmakerpassword \"$PASSPHRASE\"/g" config/gethbootstrap.sh
 fi
 
 echo
