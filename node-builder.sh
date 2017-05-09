@@ -32,7 +32,7 @@ else
         echo "Exiting"
         exit 1
     fi
-    if [[ -d /config/.temp ]]; then
+    if [[ -d config/.temp ]]; then
         echo "Resetting config"
         cp config/.temp/* config/ && \
         mv config/env.sh.example config/env.sh && \
