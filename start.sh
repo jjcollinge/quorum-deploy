@@ -22,7 +22,10 @@ echo "---------------" >>$SCRIPT_LOG
 # Configure the node by moving files to the correct directories
 echo "Configuring node" >>$SCRIPT_LOG
 mkdir -p $DATA_PATH/keystore
-stat -t -- $KEYS_PATH/key* >/dev/null 2>&1 && cp $KEYS_PATH/key* $DATA_PATH/keystore
+for i in $KEYS_PATH/key*; do
+    cp -r $i $DATA_PATH/keystore
+done
+
 sleep 2
 
 # Initialise geth directory
