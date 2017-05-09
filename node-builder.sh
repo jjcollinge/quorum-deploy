@@ -6,15 +6,13 @@ echo "Quorum node builder"
 echo "-------------------"
 echo
 
-echo "This script will help you configure a Quorum node"
+echo "This script will try to help you configure a Quorum node"
 echo
 
 if [[ ! -d "keys" ]]; then
     mkdir -p keys
 fi
 
-echo "Creating config"
-echo
 if ls config/*.example 1> /dev/null 2>&1; then
     mv config/env.sh.example config/env.sh && \
     mv config/genesis.json.example config/genesis.json && \
@@ -96,16 +94,14 @@ fi
 
 echo
 echo "Gathering network details"
-echo
-
 echo "Constellation URL (i.e. http://localhost:9000/): "
 read CONSTELLATION_URL
 echo "Constellation port: "
 read CONSTELLATION_PORT
-echo "Other node constellation urls as comma separated strings (i.e. http://localhost:9000/,http://localhost:9001/): "
+echo "Other known constellation urls (comma delimited): "
 read OTHER_CONSTELLATION_URLS
 echo "Is there an existing bootnode to connect to? [y/n]"
-read $BOOTNODE_EXISTS
+read BOOTNODE_EXISTS
 while ([[ $BOOTNODE_EXISTS != "y" && $BOOTNODE_EXISTS != "n" ]]); do
     echo "$BOOTNODE_EXISTS is not a valid input, please try again."
     echo "Is there an existing bootnode to connect to? [y/n]"
@@ -142,9 +138,16 @@ sed -i -e "s/__CONSTELLATION_PORT__/$CONSTELLATION_PORT/g" config/env.sh
 sed -i -e "s/__GETH_PORT__/$GETH_PORT/g" config/env.sh
 sed -i -e "s/__GETH_NETWORK_ID__/$GETH_NETWORK_ID/g" config/env.sh
 
-sed -i -e "s/__CONSTELLATION_URL__/$CONSTELLATION_URL/g" config/node.conf
+sed -i -e "s@__CONSTELLATION_URL__@$CONSTELLATION_URL@g" config/node.conf
 sed -i -e "s/__CONSTELLATION_PORT__/$CONSTELLATION_PORT/g" config/node.conf
-sed -i -e "s/__OTHER_CONSTELLATION_URLS__/\"$OTHER_CONSTELLATION_URLS\"/g" config/node.conf
+IFS=',' read -r -a array <<< "$OTHER_CONSTELLATION_URLS"
+STRINGIFIED=""
+for URL in "${array[@]}"
+do
+    STRINGIFIED+="\"$URL\","
+done
+STRINGIFIED=${STRINGIFIED::-1}
+sed -i -e "s@__OTHER_CONSTELLATION_URLS__@$STRINGIFIED@g" config/node.conf
 
 echo "Quorum node configured"
 
