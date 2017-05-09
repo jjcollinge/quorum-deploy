@@ -16,7 +16,7 @@ mv gethbootstrap.sh.example gethbootstrap.sh && \
 mv node.conf.example node.conf
 ```
 
-3. Customise the configuration files `quorum-node/config` to map to your desired network configuration.
+3. Customise the configuration files in the `quorum-node/config` directory to map to your desired network configuration.
 
 4. (Optional) Generate constellation and/or geth keys and store them in `/quorum-node/keys`. Alternatively, generate the keys at runtime by using the command shown in step 6.2 below.
 
