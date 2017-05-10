@@ -45,12 +45,15 @@ RUN chmod +x /quorum/build/bin/* && \
     rm -rf ubuntu1604 && \
     rm -f ubuntu1604.zip
 
+RUN curl -L https://aka.ms/InstallAzureCli | bash && \
+    exec -l $SHELL
+
 COPY config /quorum-node/config
 COPY keys /quorum-node/keys
-COPY start.sh /quorum-node/start.sh
-RUN chmod +x /quorum-node/start.sh \
-    /quorum-node/config/gethbootstrap.sh
+COPY setup /quorum-node/setup.py
+
+RUN chmod +x /quorum-node/setup.py
 
 WORKDIR /quorum-node
 
-ENTRYPOINT ["./start.sh"]
+ENTRYPOINT ["./setup.py"]
