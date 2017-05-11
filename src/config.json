@@ -1,0 +1,15 @@
+{
+    "IsBootnode": true,
+    "IsVoter": true,
+    "VoterAccountAddress": "",
+    "VoterAccountPassword": "",
+    "IsBlockmaker": true,
+    "BlockmakerAccountAddress": "",
+    "BlockmakerAccountPassword": "",
+    "GethNetworkId": 87234,
+    "AzureStorageAccount": "dotjsonquorum",
+    "AzureStorageSAS": "",
+    "AzureTenant": "",
+    "AzureSPNAppId": "",
+    "AzureSPNPassword": ""
+}

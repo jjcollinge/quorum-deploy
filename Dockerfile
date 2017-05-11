@@ -16,7 +16,15 @@ RUN apt-get update &&  apt-get install -y \
     zlib1g-dev \
     libtinfo-dev \
     sysvbanner wrk \
-    psmisc
+    psmisc \
+    curl
+
+RUN apt-get install -y \
+    libssl-dev \
+    libffi-dev \
+    python3-dev \
+    python3-pip && \
+    ln -s /usr/bin/python3 /usr/bin/python
 
 RUN add-apt-repository -y ppa:ethereum/ethereum && \
     apt-get update && \
@@ -45,15 +53,18 @@ RUN chmod +x /quorum/build/bin/* && \
     rm -rf ubuntu1604 && \
     rm -f ubuntu1604.zip
 
-RUN curl -L https://aka.ms/InstallAzureCli | bash && \
-    exec -l $SHELL
+RUN curl -L https://aka.ms/InstallAzureCli | bash
 
-COPY config /quorum-node/config
+RUN mkdir -p /quorum-node/ \
+    /quorum-node/temp \
+    /quorum-node/temp/data \
+    /quorum-node/temp/data/keystore
+
+COPY src /quorum-node/src
 COPY keys /quorum-node/keys
-COPY setup /quorum-node/setup.py
 
-RUN chmod +x /quorum-node/setup.py
+RUN chmod +x /quorum-node/src/setup.py
 
 WORKDIR /quorum-node
 
-ENTRYPOINT ["./setup.py"]
+ENTRYPOINT ["python ./src/setup.py"]
