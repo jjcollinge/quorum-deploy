@@ -1,4 +1,2 @@
-config/*
-!config/*.example
-.temp
-temp
+src/config.json
+keys/

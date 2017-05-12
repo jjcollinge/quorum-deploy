@@ -22,22 +22,21 @@ with open('src/config.json') as config_file:
 pprint(config)
 
 # Define global constants
-node_root_path = "/quorum-node"
-temp_path = node_root_path + "/temp"
-data_path = temp_path + "/data"
-key_path = node_root_path + "/keys"
-src_path = node_root_path + "/src"
+root = os.getcwd()
+temp_path = root + "/temp"
+data_path = root + "/data"
+key_path = root + "/keys"
+src_path = root + "/src"
 keystore_path = data_path + "/keystore"
-bootnode_keyfile_path = node_root_path + "/bootnode"
+bootnode_keyfile_path = root + "/bootnode"
 local_ip = "127.0.0.1"
 azure_storage_table = "networkbootnodes"
 azure_partition_key = "100"
 azure_row_key = config["GethNetworkId"]
-cwd = os.getcwd()
 
 # Set required enviroment variables
 os.environ['AZURE_STORAGE_ACCOUNT'] = config["AzureStorageAccount"]
-os.environ['AZURE_STORAGE_ACCESS_KEY'] = config["AzureStorageSAS"]
+os.environ['AZURE_STORAGE_ACCESS_KEY'] = config["AzureStorageKey"]
 
 # Login to Azure Storage with SPN
 execute("az login --service-principal -u {0} -p {1} --tenant {2}".format(config["AzureSPNAppId"], config["AzureSPNPassword"], config["AzureTenant"]))
@@ -49,8 +48,9 @@ for key in glob.glob(key_path + '/key*'):
 # Initialise Geth
 execute("geth --datadir {0} init config/genesis.json".format(data_path))
 
+# Start a local bootnode if required
 if (config["IsBootnode"] == True):
-    # Start a local bootnode if required
+    # Create key file if it doesn't exist
     if not os.path.exists(bootnode_keyfile_path):
         execute("bootnode -genkey {0}".format(bootnode_keyfile_path))
     execute("nohup bootnode --nodekey {0} --addr {1}:5000 2>> temp/logs/bootnode.log &".format(bootnode_keyfile_path, local_ip))
@@ -67,7 +67,7 @@ if (config["IsBootnode"] == True):
     bootnode_enode = "enode://{0}@[::]:5000".format(bootnode_publickey)
     current_bootnodes += ',' + bootnode_enode
     execute("az storage entity merge -t {0} -e PartitionKey={1} RowKey={2} Content={3}".format(azure_storage_table, azure_partition_key, azure_row_key, current_bootnodes))
-    # Clear other urls in node.conf
+    # Assume this is first node so clear node.conf 'OtherNodeUrls' field
     execute("sed -i -e 's/__OTHER_NODE_URLS__//g' src/node.conf")
 else:
     # Fetch current value
@@ -79,7 +79,7 @@ else:
     execute("sed -i -e 's/__OTHER_NODE_URLS__/\"{0}:5000\"/g' src/node.conf".format(host_ip))
 
 # Start local constellation
-shutil.copy(src_path + "/node.conf", cwd)
+shutil.copy(src_path + "/node.conf", root)
 execute("nohup constellation-node node.conf 2>> temp/logs/constellation.log &")
 
 # Allow constellation time to come up
@@ -97,8 +97,3 @@ execute("nohup geth {0} & 2>> temp/logs/geth.log")
 
 # Keep container alive
 execute("tail -f /dev/null")
-
-
-
-
-

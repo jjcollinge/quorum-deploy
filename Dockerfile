@@ -3,6 +3,7 @@ FROM ubuntu:16.04
 ENV GOREL go1.7.3.linux-amd64.tar.gz
 ENV PATH $PATH:/usr/local/go/bin
 
+# Install build tools
 RUN apt-get update &&  apt-get install -y \
     software-properties-common \
     unzip \
@@ -19,6 +20,7 @@ RUN apt-get update &&  apt-get install -y \
     psmisc \
     curl
 
+# Install python
 RUN apt-get install -y \
     libssl-dev \
     libffi-dev \
@@ -26,25 +28,30 @@ RUN apt-get install -y \
     python3-pip && \
     ln -s /usr/bin/python3 /usr/bin/python
 
+# Install solidity compiler
 RUN add-apt-repository -y ppa:ethereum/ethereum && \
     apt-get update && \
     apt-get install -y solc && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Fetch constellation
 RUN wget -q https://github.com/jpmorganchase/constellation/releases/download/v0.0.1-alpha/ubuntu1604.zip && \
     unzip ubuntu1604.zip
 
+# Install Go
 RUN wget -q https://storage.googleapis.com/golang/${GOREL} && \
     tar -xvzf ${GOREL} && \
     mv go /usr/local/go && \
     rm ${GOREL}
 
+# Fetch and build Quorum
 RUN git clone https://github.com/jpmorganchase/quorum.git && \
     cd quorum && \
     git checkout tags/q1.0.1 && \
     make all
 
+# Set up paths
 RUN chmod +x /quorum/build/bin/* && \
     cp /quorum/build/bin/* /usr/local/bin && \
     chmod +x /ubuntu1604/* && \
@@ -53,18 +60,38 @@ RUN chmod +x /quorum/build/bin/* && \
     rm -rf ubuntu1604 && \
     rm -f ubuntu1604.zip
 
-RUN curl -L https://aka.ms/InstallAzureCli | bash
+# Install Azure Cli 2.0
+RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \
+    tee /etc/apt/sources.list.d/azure-cli.list && \
+    apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893 && \
+    apt-get install apt-transport-https && \
+    apt-get update && \
+    apt-get install -y azure-cli
 
-RUN mkdir -p /quorum-node/ \
-    /quorum-node/temp \
-    /quorum-node/temp/data \
-    /quorum-node/temp/data/keystore
+# Clean up packages
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY src /quorum-node/src
-COPY keys /quorum-node/keys
+# Create directory structure
+RUN mkdir -p /opt/quorum
 
+# Copy source and key files into the container
+COPY src /opt/quorum/src
+COPY keys /opt/quorum/keys
+
+# Set permissions
 RUN chmod +x /quorum-node/src/setup.py
 
-WORKDIR /quorum-node
+# Expose ports
+EXPOSE 30303
+EXPOSE 30303/udp
+EXPOSE 8545
+EXPOSE 9000
+EXPOSE 33445/udp
+
+# Mount data volume
+VOLUME /data
+
+WORKDIR /opt/quorum/
 
 ENTRYPOINT ["python ./src/setup.py"]
