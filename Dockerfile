@@ -61,12 +61,8 @@ RUN chmod +x /quorum/build/bin/* && \
     rm -f ubuntu1604.zip
 
 # Install Azure Cli 2.0
-RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \
-    tee /etc/apt/sources.list.d/azure-cli.list && \
-    apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893 && \
-    apt-get install apt-transport-https && \
-    apt-get update && \
-    apt-get install -y azure-cli
+RUN curl -L https://aka.ms/InstallAzureCli | bash && \
+    exec -l $SHELL
 
 # Clean up packages
 RUN apt-get clean && \
