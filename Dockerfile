@@ -91,5 +91,5 @@ VOLUME /data
 
 WORKDIR /opt/quorum/
 
- ENTRYPOINT ["/bin/bash"]
-# ENTRYPOINT ["./src/start.sh"]
+# ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["./src/start.sh"]

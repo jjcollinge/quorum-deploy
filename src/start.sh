@@ -24,8 +24,8 @@ azure_row_key=$GETHNETWORKID
 bootnode_port=33445
 
 # Check required enviroment variables
-if [[ -z $PUBLICBOOTNODEIP ]] && [[ "${ENABLEBOOTNODE,,}" = 'true' ]]; then
-    echo "Empty or invalid required config.json field: PublicBootnodeIP"
+if [[ -z $PUBLIC_BOOTNODE_IP ]] && [[ "${ENABLEBOOTNODE,,}" = 'true' ]]; then
+    echo "When you enable bootnode, you must provide the enviroment variable PUBLIC_BOOTNODE_IP so I can correctly register you"
     exit 1
 fi
 if [[ -z $AZURESTORAGECONNECTIONSTRING ]]; then

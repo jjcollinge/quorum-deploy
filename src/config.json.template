@@ -7,8 +7,7 @@
     "BlockmakerAccountAddress": "${BlockmakerAccountAddress}",
     "BlockmakerAccountPassword": "${BlockmakerAccountPassword}",
     "GethNetworkId": ${GethNetworkId},
-    "AzureStorageAccount": "${AzureStorageAccount}",
-    "AzureStorageKey": "${AzureStorageKey}",
+    "AzureStorageConnectionString": "${AzureStorageConnectionString}",
     "AzureTenant": "${AzureTenant}",
     "AzureSPNAppId": "${AzureSPNAppId}",
     "AzureSPNPassword": "${AzureSPNPassword}"
