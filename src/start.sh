@@ -24,7 +24,7 @@ azure_row_key=$GETHNETWORKID
 bootnode_port=33445
 
 # Check required enviroment variables
-if [[ -z $PUBLICBOOTNODEIP ]]; then
+if [[ -z $PUBLICBOOTNODEIP ]] && [[ "${ENABLEBOOTNODE,,}" = 'true' ]]; then
     echo "Empty or invalid required config.json field: PublicBootnodeIP"
     exit 1
 fi
@@ -119,13 +119,14 @@ else
     response=$(az storage entity show -t $azure_storage_table --partition-key $azure_partition_key --row-key $azure_row_key | grep -e "enode://" | awk '{ print $2 }')
     current_bootnodes=${response:1:-2}
     if [[ -z $current_bootnodes ]]; then
-        echo "There are not existing bootnodes to connect to">>"$log_path/start.log"
+        echo "There are not existing bootnodes to connect to, this could be lonely">>"$log_path/start.log"
     else
-        # Add bootnode IP as constellation node
-        regex="(?:enode://)([^:/ ]+)@?([0-9]*):?([0-9]*)*"
         echo "Updating constellation conf">>"$log_path/start.log"
-        if [[ $current_bootnodes =~ $regex ]]; then
-            host_ip="${BASH_REMATCH[2]}"
+        first_bootnode=$(echo $current_bootnodes | awk -F, '{print $1}')
+        echo "$first_bootnode" > .enode
+        host_ip=$(grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' .enode)
+        rm .enode
+        if [[ -n $host_ip ]]; then
             echo "Matched with host $host_ip">>"$log_path/start.log"
             sed -i -e "s/__OTHER_NODE_URLS__/\"$host_ip:9000\"/g" "$src_path/node.conf"
         else
