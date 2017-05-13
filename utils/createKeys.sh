@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 echo "///////////////////////////"
 echo " Create Quorum Keys Script"
 echo "///////////////////////////"
