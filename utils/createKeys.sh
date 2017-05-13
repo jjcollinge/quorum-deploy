@@ -2,6 +2,8 @@
 echo "///////////////////////////"
 echo " Create Quorum Keys Script"
 echo "///////////////////////////"
+echo
+echo "Ok let's begin"
 
 if [[ -z $1 ]]; then
     echo "Please provide the location of your key folder"
@@ -11,7 +13,7 @@ fi
 keydir=$1
 
 if [[ ! -d $keydir ]]; then
-    echo "Key directory $keydir doesn't exists, creating it now"
+    echo "The key directory $keydir doesn't exists, I'll create it now"
     mkdir -p $keydir
 fi
 
@@ -37,20 +39,19 @@ function createGethKeys() {
     cp $GETH_KEY_FILE "$keydir/key$1"
 }
 
-echo "Ok let's begin"
 voter=$(promptUser "Will this account be able to vote?")
 blockmaker=$(promptUser "Will this account be able to make blocks?")
 
 # Create first account for single role
 createGethKeys 1
-if [[ voter == true ]] && [[ voter == true ]]; then
+if [[ voter == "y" ]] && [[ blockmaker == "y" ]]; then
     # Create second accout for two roles
     createGethKeys 2
 fi
 
 # Create constellation keys with no password
-yes "" | constellation-enclave-keygen node
-yes "" | constellation-enclave-keygen nodea
+yes "" | constellation-enclave-keygen node > /dev/null 2>&1
+yes "" | constellation-enclave-keygen nodea > /dev/null 2>&1
 mv node.* nodea.* "$keydir"
 
 echo "Keys created, they're stored in $keydir"
