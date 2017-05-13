@@ -23,7 +23,35 @@ azure_partition_key=1494663149
 azure_row_key=$GETHNETWORKID
 bootnode_port=33445
 
-# Set required enviroment variables
+# Check required enviroment variables
+if [[ -z $PUBLICBOOTNODEIP ]]; then
+    echo "Empty or invalid required config.json field: PublicBootnodeIP"
+    exit 1
+fi
+if [[ -z $AZURESTORAGECONNECTIONSTRING ]]; then
+    echo "Empty or invalid required config.json field: AzureStorageConnectionString"
+    exit 1
+fi
+if [[ -z $GETHNETWORKID ]]; then
+    echo "Empty or invalid required config.json field: GethNetworkId"
+    exit 1
+fi
+if [[ -z $AZURETENANT ]]; then
+    echo "Empty or invalid required config.json field: AzureTenant"
+    exit 1
+fi
+if [[ -z $AZURESPNAPPID ]]; then
+    echo "Empty or invalid required config.json field: AzureSPNAppId"
+    exit 1
+fi
+if [[ -z $AZURESPNPASSWORD ]]; then
+    echo "Empty or invalid required config.json field: AzureSPNPassword"
+    exit 1
+fi
+if [[ -z $PUBLICBOOTNODEPORT ]]; then
+    # Default bootnode port
+    PUBLICBOOTNODEPORT=$bootnode_port
+fi
 export AZURE_STORAGE_CONNECTION_STRING=$AZURESTORAGECONNECTIONSTRING
 
 # Login to Azure Storage with SPN
@@ -41,7 +69,7 @@ echo "Initialising geth">>"$log_path/start.log"
 geth --datadir $data_path init "$src_path/genesis.json"
 
 # Start a local bootnode if required
-if [[ $ENABLEBOOTNODE == 'True' ]]; then
+if [[ "${ENABLEBOOTNODE,,}" = 'true' ]]; then
     echo "Configuring bootnode">>"$log_path/start.log"
     # Create key file if it doesn't exist
     if [[ ! -f "$bootnode_keyfile_path/bootnode.key" ]]; then
@@ -70,12 +98,12 @@ if [[ $ENABLEBOOTNODE == 'True' ]]; then
     response=$(az storage entity show -t $azure_storage_table --partition-key $azure_partition_key --row-key $azure_row_key | grep -e "enode://" | awk '{ print $2 }')
     current_bootnodes=${response:1:-2}
     # Update the values to include the local bootnode
-    bootnode_enode="${local_bootnode/::/$EXT_BOOTNODE_IP}"
+    bootnode_enode="${local_bootnode/::/$PUBLICBOOTNODEIP}"
     internal_port=$(echo "$bootnode_enode" | awk -F: '{print $3}')
-    bootnode_enode="${bootnode_enode/$internal_port/$EXT_BOOTNODE_PORT}"
+    bootnode_enode="${bootnode_enode/$internal_port/$PUBLICBOOTNODEPORT}"
     if [[ -z $current_bootnodes ]]; then
         current_bootnodes=$bootnode_enode
-        echo "Creating bootnode registry with $current_bootnodes">>"$log_path/start.log"
+        echo "Registry is empty, initialising it with $current_bootnodes">>"$log_path/start.log"
         az storage entity insert -t $azure_storage_table -e PartitionKey=$azure_partition_key RowKey=$azure_row_key Content=$current_bootnodes >>"$log_path/azure.log"
     else
         current_bootnodes="$current_bootnodes,$bootnode_enode"
@@ -117,11 +145,11 @@ sleep 10
 
 # Start Geth
 args="--datadir $data_path --bootnodes $current_bootnodes --networkid $GETHNETWORKID --rpc --rpcaddr 0.0.0.0 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,quorum --rpcport 8545 --port 30303"
-if [[ $ISVOTER == 'True' ]];then
+if [[ "${ISVOTER,,}" = 'true' ]];then
     args="$args --voteaccount $VOTERACCOUNTADDRESS --votepassword \"${VOTERACCOUNTPASSWORD}\" "
 fi
 
-if [[ $ISBLOCKMAKER == 'True' ]];then
+if [[ "${ISBLOCKMAKER,,}" = 'true' ]];then
     args="$args --blockmakeraccount $BLOCKMAKERACCOUNTADDRESS --blockmakerpassword \"${BLOCKMAKERACCOUNTPASSWORD}\" "
 fi
 echo "Starting geth with args: $args">>"$log_path/start.log"
