@@ -1,4 +1,4 @@
-{
+
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
@@ -197,6 +197,20 @@
               "priority": 160,
               "direction": "Outbound"
             }
+          },
+          {
+            "name": "cakeshop",
+            "properties": {
+              "description": "Allow Cakeshop traffic",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "8080",
+              "sourceAddressPrefix": "internet",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 170,
+              "direction": "Inbound"
+            }
           }
         ]
       }
@@ -312,7 +326,7 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "https://raw.githubusercontent.com/jjcollinge/quorum-node/feature/registry/arm/deploy.sh"
+            "https://raw.githubusercontent.com/jjcollinge/quorum-node/feature/registry/arm/firstmember.sh"
           ],
           "commandToExecute": "sh deploy.sh"
         }
