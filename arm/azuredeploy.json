@@ -40,7 +40,7 @@
     "ubuntuOSVersion": "16.04.0-LTS",
     "extensionName": "DockerExtension",
     "nsgName": "myNSG",
-     "nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('nsgName'))]"
+    "nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('nsgName'))]"
   },
   "resources": [
     {
@@ -129,12 +129,12 @@
             }
           },
           {
-            "name": "sandbox",
+            "name": "bootnode",
             "properties": {
-              "description": "Allow Sandbox",
-              "protocol": "Tcp",
+              "description": "Allow Bootnode discovery",
+              "protocol": "*",
               "sourcePortRange": "*",
-              "destinationPortRange": "8555",
+              "destinationPortRange": "33445",
               "sourceAddressPrefix": "Internet",
               "destinationAddressPrefix": "*",
               "access": "Allow",
@@ -143,17 +143,59 @@
             }
           },
           {
-            "name": "ide-app",
+            "name": "geth-in",
             "properties": {
-              "description": "Allow IDE app",
-              "protocol": "Tcp",
+              "description": "Allow Geth traffic inbound",
+              "protocol": "*",
               "sourcePortRange": "*",
-              "destinationPortRange": "8080",
+              "destinationPortRange": "30303",
               "sourceAddressPrefix": "Internet",
               "destinationAddressPrefix": "*",
               "access": "Allow",
               "priority": 130,
               "direction": "Inbound"
+            }
+          },
+          {
+            "name": "geth-out",
+            "properties": {
+              "description": "Allow Geth traffic outbound",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "30303",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 140,
+              "direction": "Outbound"
+            }
+          },
+          {
+            "name": "constellation-in",
+            "properties": {
+              "description": "Allow Constellation traffic inbound",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "9000",
+              "sourceAddressPrefix": "Internet",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 150,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "constellation-out",
+            "properties": {
+              "description": "Allow Constellation traffic outbound",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "9000",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 160,
+              "direction": "Outbound"
             }
           }
         ]
@@ -249,35 +291,33 @@
         "type": "DockerExtension",
         "typeHandlerVersion": "1.0",
         "autoUpgradeMinorVersion": true,
-        "settings": {
-        }
+        "settings": {}
       }
     },
     {
-    "type": "Microsoft.Compute/virtualMachines/extensions",
-    "name": "scriptextension",
-    "location": "[resourceGroup().location]",
-    "apiVersion": "2015-06-15",
-    "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]",
-        "[concat(variables('vmName'),'/', variables('extensionName'))]"
-    ],
-    "tags": {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('vmName'),'/deployscript')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'),'/extensions/DockerExtension')]"
+      ],
+      "tags": {
         "displayName": "scriptextensiondemo"
-    },
-    "properties": {
+      },
+      "properties": {
         "publisher": "Microsoft.Azure.Extensions",
         "type": "CustomScript",
         "typeHandlerVersion": "2.0",
         "autoUpgradeMinorVersion": true,
-      "settings": {
-        "fileUris": [
-          "https://gist.github.com/ahmetalpbalkan/b5d4a856fe15464015ae87d5587a4439/raw/466f5c30507c990a4d5a2f5c79f901fa89a80841/hello.sh"
-        ],
-        "commandToExecute": "sh hello.sh"
+        "settings": {
+          "fileUris": [
+            "https://raw.githubusercontent.com/jjcollinge/quorum-node/feature/registry/arm/deploy.sh"
+          ],
+          "commandToExecute": "sh deploy.sh"
+        }
       }
     }
-}
   ],
   "outputs": {
     "hostname": {
