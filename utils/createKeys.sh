@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 echo "///////////////////////////"
 echo " Create Quorum Keys Script"
 echo "///////////////////////////"
@@ -44,8 +44,9 @@ blockmaker=$(promptUser "Will this account be able to make blocks?")
 
 # Create first account for single role
 createGethKeys 1
-if [[ voter == "y" ]] && [[ blockmaker == "y" ]]; then
+if [[ $voter == "y" ]] && [[ $blockmaker == "y" ]]; then
     # Create second accout for two roles
+    echo "Creating secondary role keys"
     createGethKeys 2
 fi
 
