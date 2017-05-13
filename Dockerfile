@@ -4,7 +4,7 @@ ENV GOREL go1.7.3.linux-amd64.tar.gz
 ENV PATH $PATH:/usr/local/go/bin
 
 # Install build tools
-RUN apt-get update &&  apt-get install -y \
+RUN apt-get update &&  apt-get install --no-install-recommends -y \
     software-properties-common \
     unzip \
     wget \
@@ -31,9 +31,7 @@ RUN apt-get install -y \
 # Install solidity compiler
 RUN add-apt-repository -y ppa:ethereum/ethereum && \
     apt-get update && \
-    apt-get install -y solc && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y solc
 
 # Fetch constellation
 RUN wget -q https://github.com/jpmorganchase/constellation/releases/download/v0.0.1-alpha/ubuntu1604.zip && \
@@ -61,25 +59,25 @@ RUN chmod +x /quorum/build/bin/* && \
     rm -f ubuntu1604.zip
 
 # Install Azure Cli 2.0
-RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \
-    tee /etc/apt/sources.list.d/azure-cli.list && \
+RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | tee /etc/apt/sources.list.d/azure-cli.list && \
     apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893 && \
+    apt-get install -y apt-transport-https --no-install-recommends && \
     apt-get update && \
-    apt-get install -y apt-transport-https azure-cli
+    apt-get install -y azure-cli
 
 # Clean up packages
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Create directory structure
-RUN mkdir -p /opt/quorum
+RUN mkdir -p /opt/quorum /opt/quorum/temp /opt/quorum/data /opt/quorum/data/keystore /opt/quorum/temp/logs
 
 # Copy source and key files into the container
 COPY src /opt/quorum/src
 COPY keys /opt/quorum/keys
 
 # Set permissions
-RUN chmod +x /quorum-node/src/setup.py
+RUN chmod +x /opt/quorum/src/start.sh
 
 # Expose ports
 EXPOSE 30303
@@ -93,4 +91,5 @@ VOLUME /data
 
 WORKDIR /opt/quorum/
 
-ENTRYPOINT ["python ./src/setup.py"]
+ ENTRYPOINT ["/bin/bash"]
+# ENTRYPOINT ["./src/start.sh"]

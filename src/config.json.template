@@ -1,5 +1,5 @@
 {
-    "IsBootnode": ${IsBootnode},
+    "EnableBootnode": ${IsBootnode},
     "IsVoter": ${IsVoter},
     "VoterAccountAddress": "${VoterAccountAddress}",
     "VoterAccountPassword": "${VoterAccountPassword}",
