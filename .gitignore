@@ -1,3 +1,10 @@
-src/config.json
-keys/
-env.sh
+# By including this .gitignore file in this folder,
+# it ensures the empty folder can be checked in
+# to version control. This is because this folder,
+# empty or populated is currently required by the
+# docker container.
+
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore
