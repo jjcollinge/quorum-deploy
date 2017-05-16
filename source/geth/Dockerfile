@@ -48,6 +48,8 @@ RUN mkdir -p /opt/quorum /opt/quorum/temp /opt/quorum/data /opt/quorum/data/keys
 # Copy source and key files into the container
 COPY . /opt/quorum
 
+RUN chmod +x /opt/quorum
+
 # Expose ports
 EXPOSE 30303
 EXPOSE 30303/udp
