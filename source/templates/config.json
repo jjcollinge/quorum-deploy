@@ -1,0 +1,14 @@
+{
+    "EnableBootnode": ${IsBootnode},
+    "IsVoter": ${IsVoter},
+    "VoterAccountAddress": "${VoterAccountAddress}",
+    "VoterAccountPassword": "${VoterAccountPassword}",
+    "IsBlockmaker": ${IsBlockmaker},
+    "BlockmakerAccountAddress": "${BlockmakerAccountAddress}",
+    "BlockmakerAccountPassword": "${BlockmakerAccountPassword}",
+    "GethNetworkId": ${GethNetworkId},
+    "AzureStorageConnectionString": "${AzureStorageConnectionString}",
+    "AzureTenant": "${AzureTenant}",
+    "AzureSPNAppId": "${AzureSPNAppId}",
+    "AzureSPNPassword": "${AzureSPNPassword}"
+}
