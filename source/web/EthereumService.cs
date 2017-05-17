@@ -26,7 +26,7 @@ namespace web
 
         public EthereumService(IOptions<EthereumSettings> config)
         {
-            _web3 = new Web3("http://localhost:8545");
+            _web3 = new Web3(config.Value.EthereumRpcEndpoint);
             _accountAddress = config.Value.EthereumAccount;
             _password = config.Value.EthereumPassword;
             _storageAccount = config.Value.StorageAccount;
@@ -72,7 +72,6 @@ namespace web
 
         public async Task<bool> ReleaseContract(string name, string abi, string byteCode, int gas)
         {
-
             // check contractName
             var existing = await this.GetContractFromTableStorage(name);
             if (existing != null) throw new Exception($"Contract {name} is present in storage");

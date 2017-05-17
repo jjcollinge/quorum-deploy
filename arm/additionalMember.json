@@ -19,6 +19,78 @@
       "metadata": {
         "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
       }
+    },
+    "isVoter": {
+      "type": "bool",
+      "metadata": {
+        "description": "Set this node as a Quorum voter"
+      }
+    },
+    "VoterAccountAddress": {
+      "type": "string",
+      "metadata": {
+        "description": "The voting account address for this node"
+      }
+    },
+    "VoterAccountPassword": {
+      "type": "string",
+      "metadata": {
+        "description": "The voting account password the voting account address"
+      }
+    },
+    "IsBlockmaker": {
+      "type": "bool",
+      "metadata": {
+        "description": "Set this node as a Quorum blockmaker"
+      }
+    },
+    "BlockmakerAccountAddress": {
+      "type": "string",
+      "metadata": {
+        "description": "The blockmaker account password the blockmaker account address"
+      }
+    },
+    "BlockmakerAccountPassword": {
+      "type": "string",
+      "metadata": {
+        "description": "The blockmaker account password the blockmaker account address"
+      }
+    },
+    "GethNetworkId": {
+      "type": "int",
+      "metadata": {
+        "description": "Network id of the Geth network"
+      }
+    },
+    "AzureStorageConnectionString": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure storage account connection string"
+      }
+    },
+    "AzureTenant": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure tenant"
+      }
+    },
+    "AzureSPNAppId": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure service principal app id"
+      }
+    },
+    "AzureSPNPassword": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure service principal password"
+      }
+    },
+    "OtherConstellationNodes": {
+      "type": "string",
+      "metadata": {
+        "description": "An array of existing constellation endpoints i.e. \"http://localhost:9000\""
+      }
     }
   },
   "variables": {
@@ -298,9 +370,9 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "https://raw.githubusercontent.com/jjcollinge/quorum-node/feature/registry/arm/additionalmember.sh"
+            "https://raw.githubusercontent.com/jjcollinge/quorum-node/feature/registry/arm/setupAdditionalMember.sh"
           ],
-          "commandToExecute": "sh deploy.sh"
+          "commandToExecute": "sh setupAdditionalMember.sh parameters('isVoter') parameters('VoterAccountAddress') parameters('VoterAccountPassword') parameters('IsBlockmaker') parameters('BlockmakerAccountAddress') parameters('BlockmakerAccountPassword') parameters('GethNetworkId') parameters('AzureStorageConnectionString') parameters('AzureTenant') parameters('AzureSPNAppId') parameters('AzureSPNPassword') parameters('ContainerHostIp') parameters('OtherConstellationNodes')"
         }
       }
     }

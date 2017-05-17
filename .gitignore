@@ -1,1 +1,3 @@
 source/shared
+**/env.sh
+arm/run.sh

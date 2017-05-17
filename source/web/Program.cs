@@ -17,24 +17,15 @@ namespace web
     {
         static void Main(string[] args)
         {
-
-        var builder = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddEnvironmentVariables();
-
-        IConfigurationRoot configuration = builder.Build();
-
-        var settings = new MySettings();
-        configuration.Bind(settings);
-
-        var moduleSettings = new MyModuleSettings();
-        configuration.GetSection("SectionA").Bind(moduleSettings);
-
-        service = new EthereumService();
-
-
-
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddEnvironmentVariables();
+            IConfigurationRoot configuration = builder.Build();
+            var ethereumSettings = new EthereumSettings();
+            configuration.GetSection("EthereumSettings").Bind(ethereumSettings);
+            service = new EthereumService(ethereumSettings);
+            service.
         }
     }
 }

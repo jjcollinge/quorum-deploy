@@ -1,0 +1,9 @@
+{
+    "EthereumSettings": {
+        "EthereumAccount": "",
+        "EthereumPassword": "",
+        "EthereumRpcEndpoint": "",
+        "StorageKey": "",
+        "StorageAccount": ""
+    }
+}

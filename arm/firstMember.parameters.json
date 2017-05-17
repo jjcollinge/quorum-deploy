@@ -10,6 +10,45 @@
     },
     "dnsLabelPrefix": {
       "value": "djfirstmember"
+    },
+    "isVoter": {
+      "value": true
+    },
+    "VoterAccountAddress": {
+      "value": "0xca843569e3427144cead5e4d5999a3d0ccf92b8e"
+    },
+    "VoterAccountPassword": {
+      "value": ""
+    },
+    "IsBlockmaker": {
+      "value": true
+    },
+    "BlockmakerAccountAddress": {
+      "value": "0x0fbdc686b912d7722dc86510934589e0aaf3b55a"
+    },
+    "BlockmakerAccountPassword": {
+      "value": ""
+    },
+    "GethNetworkId": {
+      "value": 87234
+    },
+    "AzureStorageConnectionString": {
+      "value": "DefaultEndpointsProtocol=https;AccountName=dotjsonquorum;AccountKey=Cj+jdanJUYGn2wL8rCzkJOlKNItVOO/LuzLBTT481/yupbu1HT1MEgmqQBV7PpeIO7F38Q58QC4BNIrkRFnkHw==;EndpointSuffix=core.windows.net"
+    },
+    "AzureTenant": {
+      "value": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+    },
+    "AzureSPNAppId": {
+      "value": "f96430ba-e364-49be-8af8-68c9cf47e41e"
+    },
+    "AzureSPNPassword": {
+      "value": "md1fCbwf8"
+    },
+    "ContainerHostIp": {
+      "value": "0.0.0.0"
+    },
+    "OtherConstellationNodes": {
+      "value": ""
     }
   }
 }
