@@ -5,7 +5,6 @@ using Microsoft.WindowsAzure.Storage.Table;
 using Nethereum.Web3;
 using System;
 using System.Threading.Tasks;
-using web.Models;
 using Nethereum.Contracts;
 
 namespace web
@@ -24,13 +23,13 @@ namespace web
             set { _accountAddress = value; }
         }
 
-        public EthereumService(IOptions<EthereumSettings> config)
+        public EthereumService(EthereumSettings config)
         {
-            _web3 = new Web3(config.Value.EthereumRpcEndpoint);
-            _accountAddress = config.Value.EthereumAccount;
-            _password = config.Value.EthereumPassword;
-            _storageAccount = config.Value.StorageAccount;
-            _storageKey = config.Value.StorageKey;
+            _web3 = new Web3(config.EthereumRpcEndpoint);
+            _accountAddress = config.EthereumAccount;
+            _password = config.EthereumPassword;
+            _storageAccount = config.StorageAccount;
+            _storageKey = config.StorageKey;
         }
 
         public async Task<bool> SaveContractToTableStorage(EthereumContractInfo contract)

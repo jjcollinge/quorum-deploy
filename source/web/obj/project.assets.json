@@ -10445,16 +10445,16 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Source\\Repos\\qnode\\source\\web\\web.csproj",
+      "projectUniqueName": "C:\\Source\\Repos\\qnode\\source\\web\\web.csproj",
       "projectName": "web",
-      "projectPath": "c:\\Source\\Repos\\qnode\\source\\web\\web.csproj",
-      "outputPath": "c:\\Source\\Repos\\qnode\\source\\web\\obj\\",
+      "projectPath": "C:\\Source\\Repos\\qnode\\source\\web\\web.csproj",
+      "outputPath": "C:\\Source\\Repos\\qnode\\source\\web\\obj\\",
       "projectStyle": "PackageReference",
       "originalTargetFrameworks": [
         "netcoreapp1.1"
       ],
       "files": {
-        "lib/netcoreapp1.1/web.dll": "c:\\Source\\Repos\\qnode\\source\\web\\bin\\placeholder\\netcoreapp1.1\\web.dll"
+        "lib/netcoreapp1.1/web.dll": "C:\\Source\\Repos\\qnode\\source\\web\\bin\\placeholder\\netcoreapp1.1\\web.dll"
       },
       "frameworks": {
         "netcoreapp1.1": {
