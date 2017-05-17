@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  geth:
+    build: ./geth
+    volumes:
+      - ./chain:/opt/quorum/data
+    ports:
+      - "30303:30303/udp"
+      - "30303:30303"
+      - "8545:8545"
+    depends_on:
+      - constellation
+
+  bootnode:
+    build: ./bootnode
+    ports:
+      - "33445:33445/udp"
+      - "33445:33445"
+
+  constellation:
+    build: ./constellation
+    volumes:
+      - ./chain:/opt/quorum/data
+    ports:
+      - "9000:9000"
+
+  cakeshop:
+    image: jpmc/cakeshop
+    environment:
+      -  JAVA_OPTS="-Dgeth.url=http\://localhost\:8545"
+    volumes:
+      - ./data:/opt/cakeshop/data
+    ports:
+      - "8080:8080"
