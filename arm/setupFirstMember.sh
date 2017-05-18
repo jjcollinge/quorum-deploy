@@ -59,6 +59,6 @@ sed -i -e 's/${AzureSPNAppId}/$AzureSPNAppId/g' bootnode/config.json
 sed -i -e 's/${OtherConstellationNodes}//g' constellation/node.conf
 
 # Inject cakeshop config
-sed -i -e 's/${GETH_NETWORK_ID}/$GethNetworkId/g' quorum-bootnode.yml
+sed -i -e 's/${GethNetworkId}/$GethNetworkId/g' quorum-bootnode.yml
 
 docker-compose -f quorum-bootnode.yml up -d
