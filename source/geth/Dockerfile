@@ -60,4 +60,4 @@ VOLUME /data
 
 WORKDIR /opt/quorum
 
-ENTRYPOINT ["/opt/quorum/start.sh"]
+ENTRYPOINT ["./start.sh"]
