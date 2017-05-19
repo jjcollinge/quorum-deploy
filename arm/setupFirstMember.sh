@@ -28,6 +28,7 @@ while getopts ":a:b:c:d:e:f:g:h:i:j:k:l:m" opt; do
     ;;
     m) OtherConstellationNodes="$OPTARG"
     ;;
+    n) OptionalDockerComposeArguments="$OPTARG"
   esac
 done
 
@@ -62,4 +63,4 @@ sed -i -e "s/__OtherConstellationNodes__//g" constellation/node.conf
 # Inject cakeshop config
 sed -i -e 's/__GethNetworkId__/'"$GethNetworkId"'/g' quorum-bootnode.yml
 
-docker-compose -f quorum-bootnode.yml up -d
+docker-compose -f quorum-bootnode.yml $OptionalDockerComposeArguments up -d
