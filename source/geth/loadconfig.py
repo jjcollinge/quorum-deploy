@@ -2,8 +2,6 @@
 import json
 import os
 
-config = {}
-
 with open('/opt/quorum/config.json', "r") as config_file:
     config = json.load(config_file)
 
