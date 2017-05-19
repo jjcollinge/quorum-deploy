@@ -49,6 +49,10 @@ done
 echo "Initialising geth">>start.log
 geth --datadir /opt/quorum/data init genesis.json
 
+# Check bootnode registry exists
+echo "Checking whether bootnode registry '$azure_storage_table' exists">>start.log
+exists=$(az storage table exists --name $azure_storage_table)
+
 if [[ $exists == *"true"* ]]; then
     # Fetch current value
     echo "Fetching existing bootnodes from registry">>start.log

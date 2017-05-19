@@ -1,7 +1,6 @@
 #!/bin/bash
 
-bootnode -genkey bootnode.key
-bootnode -nodekey bootnode.key -addr "0.0.0.0:33445" & >>bootnode.log
+bootnode -genkey bootnode.key -addr "0.0.0.0:33445" & >>bootnode.log
 
 # Load config
 echo "Loading configuration file">>start.log
