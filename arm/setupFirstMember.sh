@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 while getopts ":a:b:c:d:e:f:g:h:i:j:k:l:m" opt; do
   case "$opt" in
@@ -39,7 +39,7 @@ cd quorum-node/source/
 sed -i -e 's/__IsVoter__/'"$IsVoter"'/g' geth/config.json
 sed -i -e 's/__VoterAccountAddress__/'"$VoterAccountAddress"'/g' geth/config.json
 sed -i -e 's/__VoterAccountPassword__/'"$VoterAccountPassword"'/g' geth/config.json
-sed -i -e 's/__IsBlockmaker__/'"$isBlockmaker"'/g' geth/config.json
+sed -i -e 's/__IsBlockmaker__/'"$IsBlockmaker"'/g' geth/config.json
 sed -i -e 's/__BlockmakerAccountAddress__/'"$BlockmakerAccountAddress"'/g' geth/config.json
 sed -i -e 's/__BlockmakerAccountPassword__/'"$BlockmakerAccountPassword"'/g' geth/config.json
 sed -i -e 's/__GethNetworkId__/'"$GethNetworkId"'/g' geth/config.json
