@@ -2,6 +2,7 @@
 
 # Load config
 echo "Loading configuration file">>start.log
+cat /opt/quourm/config.json
 rm -f /opt/quorum/env.sh
 python /opt/quorum/loadconfig.py
 source /opt/quorum/env.sh
