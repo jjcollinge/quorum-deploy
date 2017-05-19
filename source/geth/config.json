@@ -1,13 +1,13 @@
 {
-    "IsVoter": ${IsVoter},
-    "VoterAccountAddress": "${VoterAccountAddress}",
-    "VoterAccountPassword": "${VoterAccountPassword}",
-    "IsBlockmaker": ${IsVoter},
-    "BlockmakerAccountAddress": "${BlockmakerAccountAddress}",
-    "BlockmakerAccountPassword": "${BlockmakerAccountPassword}",
-    "GethNetworkId": ${GethNetworkId},
-    "AzureStorageConnectionString": "${AzureConnectionString}",
-    "AzureTenant": "${AzureTenant}",
-    "AzureSPNAppId": "${AzureSPNAppId}",
-    "AzureSPNPassword": "${AzureSPNPassword}"
+    "IsVoter": __IsVoter__,
+    "VoterAccountAddress": "__VoterAccountAddress__",
+    "VoterAccountPassword": "__VoterAccountPassword__",
+    "IsBlockmaker": __IsBlockmaker__,
+    "BlockmakerAccountAddress": "__BlockmakerAccountAddress__",
+    "BlockmakerAccountPassword": "__BlockmakerAccountPassword__",
+    "GethNetworkId": __GethNetworkId__,
+    "AzureStorageConnectionString": "__AzureConnectionString__",
+    "AzureTenant": "__AzureTenant__",
+    "AzureSPNAppId": "__AzureSPNAppId__",
+    "AzureSPNPassword": "__AzureSPNPassword__"
 }

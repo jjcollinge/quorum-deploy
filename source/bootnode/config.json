@@ -1,8 +1,8 @@
 {
-    "ContainerHostIP": "0.0.0.0",
-    "GethNetworkId": ${GethNetworkId},
-    "AzureStorageConnectionString": "${AzureConnectionString}",
-    "AzureTenant": "${AzureTenant}",
-    "AzureSPNAppId": "${AzureSPNAppId}",
-    "AzureSPNPassword": "${AzureSPNPassword}"
+    "ContainerHostIP": "__ContainerHostIp__",
+    "GethNetworkId": __GethNetworkId__,
+    "AzureStorageConnectionString": "__AzureConnectionString__",
+    "AzureTenant": "__AzureTenant__",
+    "AzureSPNAppId": "__AzureSPNAppId__",
+    "AzureSPNPassword": "__AzureSPNPassword__"
 }

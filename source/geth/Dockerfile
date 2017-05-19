@@ -48,7 +48,8 @@ RUN mkdir -p /opt/quorum /opt/quorum/temp /opt/quorum/data /opt/quorum/data/keys
 # Copy source and key files into the container
 COPY . /opt/quorum
 
-RUN chmod +x /opt/quorum/start.sh /opt/quorum/loadconfig.py
+RUN chmod +x /opt/quorum/start.sh && \
+    chmod +x /opt/quorum/loadconfig.py
 
 # Expose ports
 EXPOSE 30303
