@@ -34,8 +34,8 @@ services:
       - ./data:/opt/cakeshop/data
     ports:
       - "8080:8080"
-      - "30303:30301"
-      - "30303:30301/udp"
+      - "30301:30301"
+      - "30301:30301/udp"
     depends_on:
       - geth-svc
     links:
