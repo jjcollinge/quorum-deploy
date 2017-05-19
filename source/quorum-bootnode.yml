@@ -29,13 +29,13 @@ services:
   cakeshops-svc:
     image: jpmc/cakeshop
     environment:
-      -  JAVA_OPTS="-Dgeth.url=http\://geth-svc\:8545 -Dgeth.node.port=30301 -Dgeth.node.port=30301 -Dgeth.networkid=${GethNetworkId}"
+      -  JAVA_OPTS="-Dgeth.url=http\://geth-svc\:8545 -Dgeth.node.port=30303 -Dgeth.networkid=__GethNetworkId__"
     volumes:
       - ./data:/opt/cakeshop/data
     ports:
       - "8080:8080"
-      - "30303:30301"
-      - "30303:30301/udp"
+      - "30303:30303"
+      - "30303:30303/udp"
     depends_on:
       - geth-svc
     links:
