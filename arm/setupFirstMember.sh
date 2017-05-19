@@ -1,6 +1,6 @@
 #!/bin/bash
 
-while getopts ":a:b:c:d:e:f:g:h:i:j:k:l:m" opt; do
+while getopts ":a:b:c:d:e:f:g:h:i:j:k:l:m:n" opt; do
   case "$opt" in
     a) IsVoter="$OPTARG"
     ;;
@@ -28,7 +28,7 @@ while getopts ":a:b:c:d:e:f:g:h:i:j:k:l:m" opt; do
     ;;
     m) OtherConstellationNodes="$OPTARG"
     ;;
-    n) OptionalDockerComposeArguments="$OPTARG"
+    n) Rebuild="$OPTARG"
   esac
 done
 
@@ -63,4 +63,7 @@ sed -i -e "s/__OtherConstellationNodes__//g" constellation/node.conf
 # Inject cakeshop config
 sed -i -e 's/__GethNetworkId__/'"$GethNetworkId"'/g' quorum-bootnode.yml
 
-docker-compose -f quorum-bootnode.yml $OptionalDockerComposeArguments up -d
+if [[ "$Rebuild" == true ]]; then
+  docker-compose build
+fi
+docker-compose -f quorum-bootnode.yml up -d
