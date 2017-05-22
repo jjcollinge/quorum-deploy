@@ -406,7 +406,7 @@
           "fileUris": [
             "https://raw.githubusercontent.com/jjcollinge/quorum-node/feature/registry/arm/setupFirstMember.sh"
           ],
-          "commandToExecute": "bash setupFirstMember.sh -a reference(parameters('isVoter')) -b reference(parameters('VoterAccountAddress')) -c reference(parameters('VoterAccountPassword')) -d reference(parameters('IsBlockmaker')) -e reference(parameters('BlockmakerAccountAddress')) -f reference(parameters('BlockmakerAccountPassword')) -g reference(parameters('GethNetworkId')) -h reference(parameters('AzureStorageConnectionString')) -i reference(parameters('AzureTenant')) -j reference(parameters('AzureSPNAppId')) -k reference(parameters('AzureSPNPassword')) -l reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))).IpAddress) -m reference(parameters('OtherConstellationNodes')) -n false"
+          "commandToExecute": "[concat('bash setupFirstMember.sh',' -a ',parameters('isVoter'),' -b ',parameters('VoterAccountAddress'),' -c ',parameters('VoterAccountPassword'), ' -d ', parameters('IsBlockmaker'),' -e ',parameters('BlockmakerAccountAddress'),' -f ',parameters('BlockmakerAccountPassword'),' -g ',parameters('GethNetworkId'),' -h ',parameters('AzureStorageConnectionString'),' -i ',parameters('AzureTenant'),' -j ',parameters('AzureSPNAppId'),' -k ',parameters('AzureSPNPassword'),' -l ',reference(resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))).IpAddress,' -m ',parameters('OtherConstellationNodes'),' -n false')]"
         }
       }
     }
