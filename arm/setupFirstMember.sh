@@ -37,10 +37,10 @@ git clone https://github.com/jjcollinge/quorum-node --branch feature/registry
 cd quorum-node/source/
 
 # Inject geth config
-sed -i -e 's/__IsVoter__/'"$IsVoter"'/g' geth/config.json
+sed -i -e 's/__IsVoter__/'"${IsVoter,,}"'/g' geth/config.json
 sed -i -e 's/__VoterAccountAddress__/'"$VoterAccountAddress"'/g' geth/config.json
 sed -i -e 's/__VoterAccountPassword__/'"$VoterAccountPassword"'/g' geth/config.json
-sed -i -e 's/__IsBlockmaker__/'"$IsBlockmaker"'/g' geth/config.json
+sed -i -e 's/__IsBlockmaker__/'"${IsBlockmaker,,}"'/g' geth/config.json
 sed -i -e 's/__BlockmakerAccountAddress__/'"$BlockmakerAccountAddress"'/g' geth/config.json
 sed -i -e 's/__BlockmakerAccountPassword__/'"$BlockmakerAccountPassword"'/g' geth/config.json
 sed -i -e 's/__GethNetworkId__/'"$GethNetworkId"'/g' geth/config.json
