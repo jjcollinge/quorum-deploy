@@ -5,7 +5,7 @@ ENV PATH $PATH:/usr/local/go/bin
 
 RUN apt-get update && apt-get upgrade -q -y && \
     apt-get update && \
-    apt-get install -y --no-install-recommends wget git make gcc libc-dev ca-certificates unzip
+    apt-get install -y --no-install-recommends wget git make gcc libc-dev ca-certificates unzip curl
 
 RUN wget https://dotjsonquorum.blob.core.windows.net/builds/quorumcon-alpha-1.0.5.zip && \
     mv quorum* quorum.zip && \
@@ -44,6 +44,9 @@ RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheez
 COPY . /opt/bootnode
 
 RUN chmod +x /opt/bootnode/*
+
+# Create directory structure
+RUN mkdir -p /opt/bootnode/logs
 
 EXPOSE 33445
 
