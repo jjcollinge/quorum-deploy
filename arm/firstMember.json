@@ -406,7 +406,7 @@
           "fileUris": [
             "https://raw.githubusercontent.com/jjcollinge/quorum-node/feature/registry/arm/setupFirstMember.sh"
           ],
-          "commandToExecute": "[concat('bash setupFirstMember.sh',' -a ',parameters('isVoter'),' -b ',parameters('VoterAccountAddress'),' -c ',parameters('VoterAccountPassword'),' -d ', parameters('IsBlockmaker'),' -e ',parameters('BlockmakerAccountAddress'),' -f ',parameters('BlockmakerAccountPassword'),' -g ',parameters('GethNetworkId'),' -h ',parameters('AzureStorageConnectionString'),' -i ',parameters('AzureTenant'),' -j ',parameters('AzureSPNAppId'),' -k ',parameters('AzureSPNPassword'),' -l ','0.0.0.0',' -m ',parameters('OtherConstellationNodes'),' -n false')]"
+          "commandToExecute": "[concat('bash setupFirstMember.sh',' -a ',parameters('isVoter'),' -b ',parameters('VoterAccountAddress'),' -c ',parameters('VoterAccountPassword'),' -d ',parameters('IsBlockmaker'),' -e ',parameters('BlockmakerAccountAddress'),' -f ',parameters('BlockmakerAccountPassword'),' -g ',parameters('GethNetworkId'),' -h ',parameters('AzureStorageConnectionString'),' -i ',parameters('AzureTenant'),' -j ',parameters('AzureSPNAppId'),' -k ',parameters('AzureSPNPassword'),' -l ','0.0.0.0',' -m ',parameters('OtherConstellationNodes'),' -n false')]"
         }
       }
     }
