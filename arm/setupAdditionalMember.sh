@@ -1,6 +1,6 @@
 #!/bin/bash
 
-while getopts ":a:b:c:d:e:f:g:h:i:j:k:l:m:n" opt; do
+while getopts ":a:b:c:d:e:f:g:h:i:j:k:l:m:n:" opt; do
   case "$opt" in
     a) IsVoter="$OPTARG"
     ;;

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-bootnode -genkey bootnode.key -addr "0.0.0.0:33445" >>bootnode.log &
+nohup bootnode -genkey bootnode.key -addr "0.0.0.0:33445" 2>>bootnode.log &
 
 # Load config
 echo "Loading configuration file">>start.log
@@ -12,7 +12,7 @@ source /opt/bootnode/env.sh
 azure_storage_table="networkbootnodes"
 azure_partition_key=1494663149
 azure_row_key=$GETHNETWORKID
-bootnode_port=33445
+external_port=33445
 
 # Check required enviroment variables
 if [[ -z $CONTAINERHOSTIP ]]; then
@@ -64,7 +64,7 @@ current_bootnodes=${response:1:-2}
 # Update the values to include the local bootnode
 bootnode_enode="${local_bootnode/::/$CONTAINERHOSTIP}"
 internal_port=$(echo "$bootnode_enode" | awk -F: '{print $3}')
-bootnode_enode="${bootnode_enode/$internal_port/$bootnode_port}"
+bootnode_enode="${bootnode_enode/$internal_port/$external_port}"
 
 if [[ -z $current_bootnodes ]]; then
     current_bootnodes=$bootnode_enode
