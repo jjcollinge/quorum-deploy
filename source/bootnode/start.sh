@@ -1,6 +1,6 @@
 #!/bin/bash
 
-bootnode -genkey bootnode.key -addr "0.0.0.0:33445" & >>bootnode.log
+bootnode -genkey bootnode.key -addr "0.0.0.0:33445" >>bootnode.log &
 
 # Load config
 echo "Loading configuration file">>start.log
@@ -62,9 +62,9 @@ response=$(az storage entity show -t $azure_storage_table --partition-key $azure
 current_bootnodes=${response:1:-2}
 
 # Update the values to include the local bootnode
-bootnode_enode="${local_bootnode/::/$PUBLICBOOTNODEIP}"
+bootnode_enode="${local_bootnode/::/$CONTAINERHOSTIP}"
 internal_port=$(echo "$bootnode_enode" | awk -F: '{print $3}')
-bootnode_enode="${bootnode_enode/$internal_port/$PUBLICBOOTNODEPORT}"
+bootnode_enode="${bootnode_enode/$internal_port/$bootnode_port}"
 
 if [[ -z $current_bootnodes ]]; then
     current_bootnodes=$bootnode_enode

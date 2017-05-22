@@ -406,7 +406,7 @@
           "fileUris": [
             "https://raw.githubusercontent.com/jjcollinge/quorum-node/feature/registry/arm/setupFirstMember.sh"
           ],
-          "commandToExecute": "sh setupFirstMember.sh parameters('isVoter') parameters('VoterAccountAddress') parameters('VoterAccountPassword') parameters('IsBlockmaker') parameters('BlockmakerAccountAddress') parameters('BlockmakerAccountPassword') parameters('GethNetworkId') parameters('AzureStorageConnectionString') parameters('AzureTenant') parameters('AzureSPNAppId') parameters('AzureSPNPassword') parameters('ContainerHostIp') parameters('OtherConstellationNodes')"
+          "commandToExecute": "sh setupFirstMember.sh -a parameters('isVoter') -b parameters('VoterAccountAddress') -c parameters('VoterAccountPassword') -d parameters('IsBlockmaker') -e parameters('BlockmakerAccountAddress') -f parameters('BlockmakerAccountPassword') -g parameters('GethNetworkId') -h parameters('AzureStorageConnectionString') -i parameters('AzureTenant') -j parameters('AzureSPNAppId') -k parameters('AzureSPNPassword') -l parameters('ContainerHostIp') -m parameters('OtherConstellationNodes') -n false"
         }
       }
     }
