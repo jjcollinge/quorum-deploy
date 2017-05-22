@@ -14,6 +14,8 @@ azure_partition_key=1494663149
 azure_row_key=$GETHNETWORKID
 external_port=33445
 
+CONTAINERHOSTIP=$(curl -s -4 http://checkip.amazonaws.com || printf "0.0.0.0")
+
 # Check required enviroment variables
 if [[ -z $CONTAINERHOSTIP ]]; then
     echo "Empty or invalid required config.json field: ContainerHostIp"
