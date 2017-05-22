@@ -1,7 +1,5 @@
 #!/bin/bash
 
-touch temp/logs/start.log temp/logs/geth.log temp/logs/azure.log
-
 # Load config
 echo "Loading configuration file">>/temp/logs/start.log
 rm -f /opt/quorum/env.sh
@@ -72,7 +70,7 @@ else
 fi
 
 # Start Geth
-args="--datadir /opt/quorum/data --bootnodes $current_bootnodes --networkid $GETHNETWORKID --rpc --rpcaddr 0.0.0.0 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,quorum --rpcport 8545 --port 30303"
+args="--datadir /opt/quorum/data $bootnode_args --networkid $GETHNETWORKID --rpc --rpcaddr 0.0.0.0 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,quorum --rpcport 8545 --port 30303"
 
 if [[ "${ISVOTER,,}" = 'true' ]];then
     args="$args --voteaccount $VOTERACCOUNTADDRESS --votepassword \"${VOTERACCOUNTPASSWORD}\" "

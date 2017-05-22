@@ -4,7 +4,7 @@
 nohup bootnode -genkey bootnode.key -addr "0.0.0.0:33445" 2>>/temp/logs/bootnode.log &
 
 # Load config
-echo "Loading configuration file">>start.log
+echo "Loading configuration file">>/temp/logs/start.log
 rm -f /opt/bootnode/env.sh
 python /opt/bootnode/loadconfig.py
 source /opt/bootnode/env.sh
@@ -44,10 +44,10 @@ if [[ -z $AZURESPNPASSWORD ]]; then
 fi
 export AZURE_STORAGE_CONNECTION_STRING=$AZURESTORAGECONNECTIONSTRING
 
-echo "Configuring bootnode">>start.log
+echo "Configuring bootnode on $CONTAINERHOSTIP">>/temp/logs/start.log
 
 # Grab the bootnode public key
-local_bootnode=$(grep -i "listening" bootnode.log | awk '{print $5}')
+local_bootnode=$(grep -i "listening" /temp/logs/bootnode.log | awk '{print $5}')
 
 # Register bootnode with table storage
 echo "Checking whether bootnode registry '$azure_storage_table' exists">>/temp/logs/start.log
