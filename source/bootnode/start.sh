@@ -1,6 +1,7 @@
 #!/bin/bash
 
-nohup bootnode -genkey bootnode.key -addr "0.0.0.0:33445" 2>>bootnode.log &
+# Start local bootnode
+nohup bootnode -genkey bootnode.key -addr "0.0.0.0:33445" 2>>/temp/logs/bootnode.log &
 
 # Load config
 echo "Loading configuration file">>start.log
@@ -49,13 +50,13 @@ echo "Configuring bootnode">>start.log
 local_bootnode=$(grep -i "listening" bootnode.log | awk '{print $5}')
 
 # Register bootnode with table storage
-echo "Checking whether bootnode registry '$azure_storage_table' exists">>start.log
+echo "Checking whether bootnode registry '$azure_storage_table' exists">>/temp/logs/start.log
 exists=$(az storage table exists --name $azure_storage_table)
 
 if [[ $exists == *"false"* ]]; then
     # Create table if it doesn't exist
-    echo "No existing registry, creating '$azure_storage_table">>start.log
-    az storage table create --name $azure_storage_table >>azure.log
+    echo "No existing registry, creating '$azure_storage_table">>/temp/logs/start.log
+    az storage table create --name $azure_storage_table >>/temp/logs/azure.log
 fi
 
 # Fetch current value
@@ -70,14 +71,14 @@ bootnode_enode="${bootnode_enode/$internal_port/$external_port}"
 
 if [[ -z $current_bootnodes ]]; then
     current_bootnodes=$bootnode_enode
-    echo "Registry is empty, initialising it with $current_bootnodes">>start.log
-    az storage entity insert -t $azure_storage_table -e PartitionKey=$azure_partition_key RowKey=$azure_row_key Content=$current_bootnodes >>azure.log
+    echo "Registry is empty, initialising it with $current_bootnodes">>/temp/logs/start.log
+    az storage entity insert -t $azure_storage_table -e PartitionKey=$azure_partition_key RowKey=$azure_row_key Content=$current_bootnodes >>/temp/logs/azure.log
 else
     current_bootnodes="$current_bootnodes,$bootnode_enode"
-    echo "Updating bootnode registry with $current_bootnodes">>start.log
-    az storage entity replace -t $azure_storage_table -e PartitionKey=$azure_partition_key RowKey=$azure_row_key Content=$current_bootnodes >>azure.log
+    echo "Updating bootnode registry with $current_bootnodes">>/temp/logs/start.log
+    az storage entity replace -t $azure_storage_table -e PartitionKey=$azure_partition_key RowKey=$azure_row_key Content=$current_bootnodes >>/temp/logs/azure.log
 fi
 
 # Keep container alive
-echo "Sleeping indefinitely">>start.log
+echo "Sleeping indefinitely">>/temp/logs/start.log
 tail -f /dev/null

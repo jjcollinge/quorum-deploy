@@ -5,7 +5,7 @@ ENV PATH $PATH:/usr/local/go/bin
 
 RUN apt-get update && apt-get upgrade -q -y && \
     apt-get update && \
-    apt-get install -y --no-install-recommends wget git make gcc libc-dev ca-certificates
+    apt-get install -y --no-install-recommends wget git make gcc libc-dev ca-certificates unzip
 
 RUN wget https://dotjsonquorum.blob.core.windows.net/builds/quorumcon-alpha-1.0.5.zip && \
     mv quorum* quorum.zip && \
