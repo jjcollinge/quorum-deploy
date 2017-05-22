@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Load config
-echo "Loading configuration file">>/temp/logs/start.log
+echo "Loading configuration file">>temp/logs/start.log
 rm -f /opt/quorum/env.sh
 python /opt/quorum/loadconfig.py
 source /opt/quorum/env.sh
@@ -36,33 +36,34 @@ fi
 export AZURE_STORAGE_CONNECTION_STRING=$AZURESTORAGECONNECTIONSTRING
 
 # Login to Azure Storage with SPN
-echo "Logging into Azure">>start.log
-az login --service-principal -u $AZURESPNAPPID -p $AZURESPNPASSWORD --tenant $AZURETENANT >>/temp/logs/azure.log
+echo "Logging into Azure">>temp/logs/start.log
+az login --service-principal -u $AZURESPNAPPID -p $AZURESPNPASSWORD --tenant $AZURETENANT >>temp/logs/azure.log
 
 # Copy key files into keystore
-echo "Moving key files">>/temp/logs/start.log
+echo "Moving key files">>temp/logs/start.log
 for key in "keys/key*"; do
     cp $key /opt/quorum/data/keystore
 done
 
 # Initialise Geth
-echo "Initialising geth">>/temp/logs/start.log
+echo "Initialising geth">>temp/logs/start.log
 geth --datadir /opt/quorum/data init genesis.json
 
 # Check bootnode registry exists
-echo "Checking whether bootnode registry '$azure_storage_table' exists">>/temp/logs/start.log
+echo "Checking whether bootnode registry '$azure_storage_table' exists">>temp/logs/start.log
 exists=$(az storage table exists --name $azure_storage_table)
 
 if [[ $exists == *"true"* ]]; then
     # Fetch current value
-    echo "Fetching existing bootnodes from registry">>/temp/logs/start.log
+    echo "Fetching existing bootnodes from registry">>temp/logs/start.log
     response=$(az storage entity show -t $azure_storage_table --partition-key $azure_partition_key --row-key $azure_row_key | grep -e "enode://" | awk '{ print $2 }')
     current_bootnodes=${response:1:-2}
-    echo "Current bootnodes: $current_bootnodes">>/temp/logs/start.log
+    echo "Current bootnodes: $current_bootnodes">>temp/logs/start.log
 fi
 
 if [[ -z $current_bootnodes ]]; then
     # Don't use bootnodes
+    echo "No existing bootnodes in registry">>temp/logs/start.log
     bootnode_args=""
 else
     # Use bootnodes
@@ -80,9 +81,9 @@ if [[ "${ISBLOCKMAKER,,}" = 'true' ]];then
     args="$args --blockmakeraccount $BLOCKMAKERACCOUNTADDRESS --blockmakerpassword \"${BLOCKMAKERACCOUNTPASSWORD}\" "
 fi
 
-echo "Starting geth with args: $args">>start.log
-PRIVATE_CONFIG=/opt/quorum/data/constellation.ipc nohup geth "${args}" 2>>/temp/logs/geth.log &
+echo "Starting geth with args: $args">>temp/logs/start.log
+PRIVATE_CONFIG=/opt/quorum/data/constellation.ipc nohup geth "${args}" 2>>temp/logs/geth.log &
 
 # Keep container alive
-echo "Sleeping indefinitely">>/temp/logs/start.log
+echo "Sleeping indefinitely">>temp/logs/start.log
 tail -f /dev/null
