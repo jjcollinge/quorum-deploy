@@ -60,7 +60,7 @@ sed -i -e 's/__AzureSPNPassword__/'"$AzureSPNPassword"'/g' bootnode/config.json
 # Inject constellation config
 sed -i -e 's/__OtherConstellationNodes__/'"OtherConstellationNodes"'/g' constellation/node.conf
 
-if [[ "$Rebuild" == true ]]; then
-  docker-compose build
+if [[ "$Rebuild" = true ]]; then
+  docker-compose -f quorum.yml build
 fi
 docker-compose -f quorum.yml up -d
