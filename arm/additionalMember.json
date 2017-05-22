@@ -372,7 +372,7 @@
           "fileUris": [
             "https://raw.githubusercontent.com/jjcollinge/quorum-node/feature/registry/arm/setupAdditionalMember.sh"
           ],
-          "commandToExecute": "sh setupAdditionalMember.sh -a parameters('isVoter') -b parameters('VoterAccountAddress') -c parameters('VoterAccountPassword') -d parameters('IsBlockmaker') -e parameters('BlockmakerAccountAddress') -f parameters('BlockmakerAccountPassword') -g parameters('GethNetworkId') -h parameters('AzureStorageConnectionString') -i parameters('AzureTenant') -j parameters('AzureSPNAppId') -k parameters('AzureSPNPassword') -l parameters('ContainerHostIp') -m parameters('OtherConstellationNodes') -n false"
+          "commandToExecute": "bash setupAdditionalMember.sh -a parameters('isVoter') -b parameters('VoterAccountAddress') -c parameters('VoterAccountPassword') -d parameters('IsBlockmaker') -e parameters('BlockmakerAccountAddress') -f parameters('BlockmakerAccountPassword') -g parameters('GethNetworkId') -h parameters('AzureStorageConnectionString') -i parameters('AzureTenant') -j parameters('AzureSPNAppId') -k parameters('AzureSPNPassword') -l parameters('ContainerHostIp') -m parameters('OtherConstellationNodes') -n false"
         }
       }
     }
