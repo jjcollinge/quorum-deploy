@@ -73,7 +73,7 @@ if [[ "${ISBLOCKMAKER,,}" = 'true' ]];then
 fi
 
 echo "Starting geth with args: $args">>start.log
-eval nohup geth "${args}" >>geth.log &
+PRIVATE_CONFIG=/opt/quorum/data/constellation.ipc nohup geth "${args}" >>geth.log &
 
 # Keep container alive
 echo "Sleeping indefinitely">>start.log

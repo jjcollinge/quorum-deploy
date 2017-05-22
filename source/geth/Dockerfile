@@ -5,20 +5,27 @@ ENV PATH $PATH:/usr/local/go/bin
 
 RUN apt-get update && apt-get upgrade -q -y && \
     apt-get update && \
-    apt-get install -y --no-install-recommends wget git make gcc libc-dev ca-certificates
+    apt-get install -y --no-install-recommends wget git make gcc libc-dev ca-certificates unzip
 
-RUN wget -q https://storage.googleapis.com/golang/${GOREL} && \
-  tar -xvzf ${GOREL} && \
-  mv go /usr/local/go && \
-  rm ${GOREL}
+RUN wget https://dotjsonquorum.blob.core.windows.net/builds/quorumcon-alpha-1.0.5.zip && \
+    mv quorum* quorum.zip && \
+    unzip quorum.zip -d quorum-bins && \
+    chmod +x quorum-bins/.artifacts/* && \
+    cp quorum-bins/.artifacts/* /usr/local/bin/ && \
+    rm -rf quorum.zip quorum-bins
 
-RUN \
-    git clone https://github.com/jpmorganchase/quorum.git && \
-    cd quorum && git checkout tags/q1.0.1 && make geth && \
-    cp build/bin/geth /usr/local/bin && \
-    chmod +x /usr/local/bin/* && \
-    cd .. && \
-    rm -rf /quorum
+# RUN wget -q https://storage.googleapis.com/golang/${GOREL} && \
+#   tar -xvzf ${GOREL} && \
+#   mv go /usr/local/go && \
+#   rm ${GOREL}
+
+# RUN \
+#     git clone https://github.com/jpmorganchase/quorum.git && \
+#     cd quorum && git checkout tags/q1.0.1 && make geth && \
+#     cp build/bin/geth /usr/local/bin && \
+#     chmod +x /usr/local/bin/* && \
+#     cd .. && \
+#     rm -rf /quorum
 
 RUN apt-get install -y \
     libssl-dev \
