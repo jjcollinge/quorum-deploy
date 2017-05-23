@@ -39,15 +39,15 @@ export AZURE_STORAGE_CONNECTION_STRING=$AZURESTORAGECONNECTIONSTRING
 echo "Logging into Azure">>temp/logs/start.log
 az login --service-principal -u $AZURESPNAPPID -p $AZURESPNPASSWORD --tenant $AZURETENANT >>temp/logs/azure.log
 
+# Initialise Geth
+echo "Initialising geth">>temp/logs/start.log
+geth --datadir /opt/quorum/data init genesis.json
+
 # Copy key files into keystore
 echo "Moving key files">>temp/logs/start.log
 for key in "keys/key*"; do
     cp $key /opt/quorum/data/keystore
 done
-
-# Initialise Geth
-echo "Initialising geth">>temp/logs/start.log
-geth --datadir /opt/quorum/data init genesis.json
 
 # Check bootnode registry exists
 echo "Checking whether bootnode registry '$azure_storage_table' exists">>temp/logs/start.log
