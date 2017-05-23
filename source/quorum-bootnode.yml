@@ -12,12 +12,14 @@ services:
     depends_on:
       - constellation-svc
       - bootnode-svc
+    restart: always
 
   bootnode-svc:
     build: ./bootnode
     ports:
       - "33445:33445/udp"
       - "33445:33445"
+    restart: always
 
   constellation-svc:
     build: ./constellation
@@ -25,6 +27,7 @@ services:
       - ./chain:/opt/quorum/data
     ports:
       - "9000:9000"
+    restart: always
 
   cakeshops-svc:
     image: jpmc/cakeshop
@@ -40,3 +43,4 @@ services:
       - geth-svc
     links:
       - geth-svc
+    restart: always

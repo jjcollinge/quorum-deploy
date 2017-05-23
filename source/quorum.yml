@@ -18,3 +18,4 @@ services:
       - ./chain:/opt/quorum/data
     ports:
       - "9000:9000"
+    restart: always
