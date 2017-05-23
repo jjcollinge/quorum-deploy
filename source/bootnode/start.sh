@@ -47,7 +47,7 @@ export AZURE_STORAGE_CONNECTION_STRING=$AZURESTORAGECONNECTIONSTRING
 echo "Configuring bootnode on $CONTAINERHOSTIP">>logs/start.log
 
 # Grab the bootnode public key
-local_bootnode=$(grep -i "listening" logs/bootnode.log | awk '{print $5}')
+local_bootnode=$(grep -i "listening" logs/bootnode.log | awk '{print $5}' | head -n 1)
 
 # Register bootnode with table storage
 echo "Checking whether bootnode registry '$azure_storage_table' exists">>logs/start.log
@@ -66,6 +66,8 @@ current_bootnodes=${response:1:-2}
 
 # Update the values to include the local bootnode
 bootnode_enode="${local_bootnode/::/$CONTAINERHOSTIP}"
+bootnode_enode="${bootnode_enode//[}"
+bootnode_enode="${bootnode_enode//]}"
 internal_port=$(echo "$bootnode_enode" | awk -F: '{print $3}')
 bootnode_enode="${bootnode_enode/$internal_port/$external_port}"
 
