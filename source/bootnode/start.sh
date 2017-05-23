@@ -3,6 +3,9 @@
 # Start local bootnode
 nohup bootnode -genkey bootnode.key -addr "0.0.0.0:33445" 2>>logs/bootnode.log &
 
+# Wait for bootnode to start listening
+sleep 6
+
 # Load config
 echo "Loading configuration file">>logs/start.log
 rm -f /opt/bootnode/env.sh

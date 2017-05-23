@@ -50,4 +50,6 @@ RUN mkdir -p /opt/bootnode/logs
 
 EXPOSE 33445
 
+WORKDIR /opt/bootnode
+
 ENTRYPOINT ["/opt/bootnode/start.sh"]
