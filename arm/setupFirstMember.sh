@@ -62,6 +62,7 @@ sed -i -e "s/__OtherConstellationNodes__//g" constellation/node.conf
 
 # Inject cakeshop config
 sed -i -e 's/__GethNetworkId__/'"$GethNetworkId"'/g' quorum-bootnode.yml
+sed -i -e 's/__ContainerHostIp__/'"$ContainerHostIp"'/g' quorum-bootnode.yml
 
 if [[ "$Rebuild" = true ]]; then
   docker-compose -f quorum-bootnode.yml build
