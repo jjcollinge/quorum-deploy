@@ -1,64 +1,70 @@
-# Quorum Node
-Quorum node is a simple way to spin up a new Quorum node in a Docker container. The node can be configured to be stand-a-lone or connect to an existing network.
+# Quorum Deploy
+**Quorum Deploy** aims to provide a simple way to stand up a consortium quorum network on Azure.
 
-## Prerequisites
-* Linux
-* Docker
+* NOTE: This repository contains work in progress code which may or may not be in a working state at any given point in time. Depending on the requirements, I may create a stable branch at a later date.
 
-## Configuring your node
-If you do not have existing keys and config, you can use the `node-builder.sh` script to help configure your node.
+## Usage
+The below instructions are not implementation specific but could be performed using the Azure PowerShell SDK, Azure CLI or Azure CLI 2.0.
 
-Follow the below steps to configure a new node:
-1. Clone the repository to your local machine
-```bash
-git clone https://github.com/jjcollinge/quorum-node.git
-```
+### First Member
+In order to help bootstrap the rest of the network and provide some additional plugin points you must initially deploy a *first member*. There is a separate Azure Resource Manager (ARM) template for doing this as it requires slightly different parameters and invokes a different initialisation script.
 
-2. Change the permissions on the scripts to allow them to run
-```bash
-chmod +x quorum-node/*.sh
-```
+1. Create a new resource group
+2. Create and populate a firstMember.parameters.json file
+3. Deploy the firstMember.json template along with your parameters file to your new resource group
+4. Wait, this will take a little while to deploy the components and run the initialisation script
+5. Once deployed, you should have a virtual machine running the following containers:
+* Geth (Quorum fork)
+* Constellation
+* Cakeshop
+* Bootnode
 
-3. Run the `node-builder.sh` script
-```bash
-cd quorum-node && ./node-builder.sh
-```
+### Additional Members
+Once the first member has been deployed, you can deploy additional members into new resource groups, subscriptions or accounts by using the additionalMember ARM template with an accompanying parameters file. The additional members template will only provision a single virtual machine running Geth (Quorum fork) and Constellation.
 
-4. Follow the on screen instructions to configure your Quorum node
+### Networking
+The ARM template will configure the Network Security Group to allow on required ports to be open.
 
-If you do not wish to use the helper script, you can manually modify the file in the `config` folder to setup your node.
+Geth (Quorum fork) will use the following ports by default:
+* **30303/tcp** for node synchronisation
+* **30303/udp** for node discovery
+* **8545/tcp** for JSON RPC
 
-#### Configuring the Genesis.json
-If you do not have an existing Quorum genesis.json file. You can create one using [this tool](https://github.com/davebryson/quorum-genesis). If you are standing up a new network, you can configure multiple nodes using this repo and then retrospectively create the genesis.json based on the generated network addresses of your nodes. You won't be able to bring the network up until the genesis.json has been created and distributed into each node's config folder.
-If you are adding this node to an existing network where this address is not in the genesis.json, you will have to get one of the other members to add your role.
+Constellation will by default use the following ports by default:
+* **9000/tcp** for message exchange
 
-**For example:** If you are adding a new voter to the network, an existing voter in the network must invoke the `addVoter(<your_address>)` method on the [block_voting](https://github.com/jpmorganchase/quorum/blob/master/core/quorum/block_voting.sol) contract.
+Cakeshop will listen on the following ports by default:
+* **8080/tcp** for webserver (http://{FQDN}:8080/cakeshop for homepage)
+* **30301/tcp** for local geth node sychronisation
+* **30301/udp** for local geth node discovery
 
-## Build your node
-Once you've configured your Quorum node, you can package it up as a portable docker image using the following command:
-```bash
-docker build -t myqnode .
-```
-**WARNING** The initial build of the quorum-node docker image will take a little while, however, subsequent builds will use the local cache and will be considerably faster.
+Bootnode will listen on the following ports by default:
+* **33445/udp** for node discovery
 
-## Run your node
-Finally, you can run your node using a similar command to the one below:
-```bash
-docker run -d --net=host myqnode
-```
+### Membership and Roles
+A node within a Quorum network can possess 3 roles.
 
-## Inspect your node
-If you want to inspect your running node follow these instructions.
-1. Get the docker container id from the list of containers
-```bash
-docker ps
-```
-2. Enter a new shell inside the container
-```bash
-docker exec -it <container_id> /bin/bash
-```
+* Observer
+* Voter
+* Block Maker
 
-Now that you are inside the container, you can view the logs in the `temp/logs/` folder. You can also attach to the running geth instance using `geth attach temp/data/geth.ipc`.
+Using the parameters file you can configure your node to take on any of these roles. For Voter or Block Maker accounts, keys will be required to secure their transactions. Therefore, please run the provided ./create-key.sh script inside your node directory.
 
+>NOTE: There must be atleast one Block Maker in the network at any given time.
 
+It is advisable to make sure that your consortium members, their roles and an initial ether balance are defined within your `genesis.json` file. However, should you need to dynamically add members later, you can do so.
+
+#### Dynamic Membership
+To add new Voter or Block Maker who are not baked into your genesis.json file, you will need to get another member of the consortium with the desired role (i.e. a Voter) to manually add the new account address to the Quorum voting contract.
+There are some helper scripts available under `source/geth/utils` which can make this easier.
+For instance:
+
+    ./addBlockmaker.sh $BLOCKMAKER_ADDRESS
+
+Will attempt to add the given address to the Quorum voting contract as a Blockmaker. Assuming all the relevant keys have been setup, the account should start creating blocks shortly.
+
+### Azure Storage
+These scripts and templates make use of Azure Table Storage to store information about existing nodes. This helps any new nodes coming online quickly discover the other nodes in the network.
+
+ >This is an external dependency and Azure Storage will not be provisioned as part of the deployment.
 
