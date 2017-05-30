@@ -6,16 +6,16 @@
       "value": "azureuser"
     },
     "adminPassword": {
-      "value": "AbcAbc123123!"
+      "value": ""
     },
     "dnsLabelPrefix": {
-      "value": "djaddmember"
+      "value": ""
     },
     "isVoter": {
       "value": true
     },
     "VoterAccountAddress": {
-      "value": "0xca843569e3427144cead5e4d5999a3d0ccf92b8e"
+      "value": ""
     },
     "VoterAccountPassword": {
       "value": ""
@@ -33,16 +33,16 @@
       "value": 87234
     },
     "AzureStorageConnectionString": {
-      "value": "DefaultEndpointsProtocol=https;AccountName=dotjsonquorum;AccountKey=Cj+jdanJUYGn2wL8rCzkJOlKNItVOO/LuzLBTT481/yupbu1HT1MEgmqQBV7PpeIO7F38Q58QC4BNIrkRFnkHw==;EndpointSuffix=core.windows.net"
+      "value": ""
     },
     "AzureTenant": {
-      "value": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+      "value": ""
     },
     "AzureSPNAppId": {
-      "value": "f96430ba-e364-49be-8af8-68c9cf47e41e"
+      "value": ""
     },
     "AzureSPNPassword": {
-      "value": "md1fCbwf8"
+      "value": ""
     },
     "OtherConstellationNodes": {
       "value": ""
