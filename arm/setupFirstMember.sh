@@ -33,8 +33,8 @@ while getopts ":a:b:c:d:e:f:g:h:i:j:k:l:m:n:" opt; do
 done
 
 cd /opt
-git clone https://github.com/jjcollinge/quorum-node --branch feature/registry
-cd quorum-node/source/
+git clone https://github.com/jjcollinge/quorum-deploy
+cd quorum-deploy/source/
 
 # Inject geth config
 sed -i -e 's/__IsVoter__/'"${IsVoter,,}"'/g' geth/config.json
