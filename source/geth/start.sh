@@ -42,12 +42,12 @@ echo "Logging into Azure">>temp/logs/start.log
 az login --service-principal -u $AZURESPNAPPID -p $AZURESPNPASSWORD --tenant $AZURETENANT >>temp/logs/azure.log
 
 # Grab keys from remote storage
-exists=$(az storage blob exists -c $key_blob_container -n $keys_blob_file)
+exists=$(az storage blob exists -c $keys_blob_container -n $keys_blob_file)
 if [[ $exists != *"true"* ]]; then
-    echo "ERORR: The remote blob $key_blob_container/$key_blob_file does not exists">>temp/logs/start.log
+    echo "ERORR: The remote blob $keys_blob_container/$keys_blob_file does not exists">>temp/logs/start.log
     exit
 fi
-az storage blob download -c $key_blob_container -n $key_blob_file -f ./keys.zip >>temp/logs/azure.log
+az storage blob download -c $keys_blob_container -n $keys_blob_file -f ./keys.zip >>temp/logs/azure.log
 unzip ./keys.zip -d keys
 
 # Initialise Geth
