@@ -39,10 +39,10 @@ cd quorum-deploy/source/
 # TODO: Should you use SAS token to access table storage
 
 # Inject geth config
-sed -i -e 's/__IsVoter__/'"$IsVoter"'/g' geth/config.json
+sed -i -e 's/__IsVoter__/'"${IsVoter,,}"'/g' geth/config.json
 sed -i -e 's/__VoterAccountAddress__/'"$VoterAccountAddress"'/g' geth/config.json
 sed -i -e 's/__VoterAccountPassword__/'"$VoterAccountPassword"'/g' geth/config.json
-sed -i -e 's/__IsBlockmaker__/'"$IsBlockmaker"'/g' geth/config.json
+sed -i -e 's/__IsBlockmaker__/'"${IsBlockmaker,,}"'/g' geth/config.json
 sed -i -e 's/__BlockmakerAccountAddress__/'"$BlockmakerAccountAddress"'/g' geth/config.json
 sed -i -e 's/__BlockmakerAccountPassword__/'"$BlockmakerAccountPassword"'/g' geth/config.json
 sed -i -e 's/__GethNetworkId__/'"$GethNetworkId"'/g' geth/config.json
