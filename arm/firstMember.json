@@ -118,7 +118,8 @@
     "ubuntuOSVersion": "16.04.0-LTS",
     "extensionName": "DockerExtension",
     "nsgName": "myNSG",
-    "nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('nsgName'))]"
+    "nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('nsgName'))]",
+    "scriptUrl": "https://raw.githubusercontent.com/jjcollinge/quorum-deploy/master/arm/setupFirstMember.sh"
   },
   "resources": [
     {
@@ -404,7 +405,7 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "https://raw.githubusercontent.com/jjcollinge/quorum-node/feature/registry/arm/setupFirstMember.sh"
+            "[variables('scriptUrl')]"
           ],
           "commandToExecute": "[concat('bash setupFirstMember.sh',' -a ',parameters('isVoter'),' -b \"',parameters('VoterAccountAddress'),'\" -c \"',parameters('VoterAccountPassword'),'\" -d ',parameters('IsBlockmaker'),' -e \"',parameters('BlockmakerAccountAddress'),'\" -f \"',parameters('BlockmakerAccountPassword'),'\" -g ',parameters('GethNetworkId'),' -h \"',parameters('AzureStorageConnectionString'),'\" -i \"',parameters('AzureTenant'),'\" -j \"',parameters('AzureSPNAppId'),'\" -k \"',parameters('AzureSPNPassword'),'\" -l \"','0.0.0.0','\" -m \"',parameters('OtherConstellationNodes'),'\" -n false')]"
         }
