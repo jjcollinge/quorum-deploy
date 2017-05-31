@@ -36,29 +36,34 @@ if [[ -z $AZURESPNPASSWORD ]]; then
     exit 1
 fi
 export AZURE_STORAGE_CONNECTION_STRING=$AZURESTORAGECONNECTIONSTRING
+RequiresKeys() { [[ "${ISVOTER,,}" == 'true' || "${ISBLOCKMAKER,,}" == 'true' ]]; }
 
 # Login to Azure Storage with SPN
 echo "Logging into Azure">>temp/logs/start.log
 az login --service-principal -u $AZURESPNAPPID -p $AZURESPNPASSWORD --tenant $AZURETENANT >>temp/logs/azure.log
 
-# Grab keys from remote storage
-exists=$(az storage blob exists -c $keys_blob_container -n $keys_blob_file)
-if [[ $exists != *"true"* ]]; then
-    echo "ERORR: The remote blob $keys_blob_container/$keys_blob_file does not exists">>temp/logs/start.log
-    exit
+# Grab keys from remote storage if required
+if RequiresKeys; then
+    exists=$(az storage blob exists -c $keys_blob_container -n $keys_blob_file)
+    if [[ $exists != *"true"* ]]; then
+        echo "ERORR: The remote blob $keys_blob_container/$keys_blob_file does not exists">>temp/logs/start.log
+        exit
+    fi
+    az storage blob download -c $keys_blob_container -n $keys_blob_file -f ./keys.zip >>temp/logs/azure.log
+    unzip ./keys.zip -d keys
 fi
-az storage blob download -c $keys_blob_container -n $keys_blob_file -f ./keys.zip >>temp/logs/azure.log
-unzip ./keys.zip -d keys
 
 # Initialise Geth
 echo "Initialising geth">>temp/logs/start.log
 geth --datadir /opt/quorum/data init genesis.json
 
 # Copy key files into keystore
-echo "Moving key files">>temp/logs/start.log
-for key in "keys/key*"; do
-    cp $key /opt/quorum/data/keystore
-done
+if RequiresKeys; then
+    echo "Moving key files">>temp/logs/start.log
+    for key in "keys/key*"; do
+        cp $key /opt/quorum/data/keystore
+    done
+fi
 
 # Check bootnode registry exists
 echo "Checking whether bootnode registry '$azure_storage_table' exists">>temp/logs/start.log
