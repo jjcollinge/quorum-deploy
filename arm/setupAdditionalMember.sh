@@ -36,6 +36,8 @@ cd /opt
 git clone https://github.com/jjcollinge/quorum-deploy
 cd quorum-deploy/source/
 
+# TODO: Should you use SAS token to access table storage
+
 # Inject geth config
 sed -i -e 's/__IsVoter__/'"$IsVoter"'/g' geth/config.json
 sed -i -e 's/__VoterAccountAddress__/'"$VoterAccountAddress"'/g' geth/config.json

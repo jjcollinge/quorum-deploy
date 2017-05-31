@@ -12,6 +12,8 @@ azure_storage_table="networkbootnodes"
 azure_partition_key=1494663149
 azure_row_key=$GETHNETWORKID
 bootnode_port=33445
+keys_blob_container="keys"
+keys_blob_file="keys.zip"
 
 if [[ -z $AZURESTORAGECONNECTIONSTRING ]]; then
     echo "Empty or invalid required config.json field: AzureStorageConnectionString"
@@ -38,6 +40,15 @@ export AZURE_STORAGE_CONNECTION_STRING=$AZURESTORAGECONNECTIONSTRING
 # Login to Azure Storage with SPN
 echo "Logging into Azure">>temp/logs/start.log
 az login --service-principal -u $AZURESPNAPPID -p $AZURESPNPASSWORD --tenant $AZURETENANT >>temp/logs/azure.log
+
+# Grab keys from remote storage
+exists=$(az storage container exists -c $key_blob_container -n $keys_blob_file)
+if [[ $exists != *"true"* ]]; then
+    echo "ERORR: The remote blob $key_blob_container/$key_blob_file does not exists">>temp/logs/start.log
+    exit
+fi
+az storage blob download -c $key_blob_container -n $key_blob_file -f ./keys.zip
+unzip ./keys.zip -d keys
 
 # Initialise Geth
 echo "Initialising geth">>temp/logs/start.log
