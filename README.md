@@ -49,7 +49,7 @@ In order to help bootstrap the rest of the network and provide some additional p
 
 4. Deploy the firstMember.json template along with your parameters file to your new resource group
 
-    ```New-AzureRmResourceGroupDeployment -Name dotjsonquorum -ResourceGroupName dotjsonq -TemplateFile .\arm\firstMember.json -TemplateParameterFile .\arm\firstMember.parameters.json -Verbose```
+    ```New-AzureRmResourceGroupDeployment -Name <deployment-name> -ResourceGroupName <resource-group-name> -TemplateFile .\arm\firstMember.json -TemplateParameterFile .\arm\firstMember.parameters.json -Verbose```
 
 5. Wait... this will take a little while to deploy the components and run the initialisation script. The `-Verbose` flag will enable feedback so you can see how the deployment is progressing.
 
@@ -59,7 +59,7 @@ In order to help bootstrap the rest of the network and provide some additional p
 * Cakeshop
 * Bootnode
 
-You can test this by connecting to the VM via ssh and running
+You can test this by connecting to the virtual machine via ssh and running
 
 ```docker ps```
 
@@ -70,8 +70,7 @@ You can then inspect the status of any of the running containers by entering the
 ### Configure Additional Members
 Once the first member has been deployed, you can deploy additional members into new resource groups, subscriptions or accounts.
 
-You will be required to provide a SAS token for access to the first memeber's Azure Table Storage account.
-You will also need to provide credentials for your own Azure Storage account where you have stored your node's keys, as described in *Configure First Member*.
+At present, this assume every additional member has access to the same Azure Storage Account via a connection string. This is impractical and in the future will support SAS tokens for external clients to access the first member's Azure Table Storage with read-only permissions.
 
 ### Deploy Additional Members
 When you have your keys stored in Azure Blob Storage and you've populated your paramters file. You can simply deploy the `additionalMember.json` ARM template along with your `additionalMember.parameters.json` parameters file.
