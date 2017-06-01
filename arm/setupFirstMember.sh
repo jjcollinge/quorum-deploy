@@ -1,70 +1,61 @@
 #!/bin/bash
 
-while getopts ":a:b:c:d:e:f:g:h:i:j:k:l:m:n:" opt; do
+while getopts ":a:b:c:d:e:f:" opt; do
   case "$opt" in
-    a) IsVoter="$OPTARG"
+    a) AzureTenant="$OPTARG"
     ;;
-    b) VoterAccountAddress="$OPTARG"
+    b) AzureSPNAppId="$OPTARG"
     ;;
-    c) VoterAccountPassword="$OPTARG"
+    c) AzureSPNPassword="$OPTARG"
     ;;
-    d) IsBlockmaker="$OPTARG"
+    d) AzureResourceGroup="$OPTARG"
     ;;
-    e) BlockmakerAccountAddress="$OPTARG"
+    e) AzureBlobStorageName="$OPTARG"
     ;;
-    f) BlockmakerAccountPassword="$OPTARG"
+    f) Rebuild="$OPTARG"
     ;;
-    g) GethNetworkId="$OPTARG"
-    ;;
-    h) AzureStorageConnectionString="$OPTARG"
-    ;;
-    i) AzureTenant="$OPTARG"
-    ;;
-    j) AzureSPNAppId="$OPTARG"
-    ;;
-    k) AzureSPNPassword="$OPTARG"
-    ;;
-    l) ContainerHostIp="$OPTARG"
-    ;;
-    m) OtherConstellationNodes="$OPTARG"
-    ;;
-    n) Rebuild="$OPTARG"
   esac
 done
 
+# Clone the source from remote location
 cd /opt
 git clone https://github.com/jjcollinge/quorum-deploy
 cd quorum-deploy/source/
 
-# Inject geth config
-sed -i -e 's/__IsVoter__/'"${IsVoter,,}"'/g' geth/config.json
-sed -i -e 's/__VoterAccountAddress__/'"$VoterAccountAddress"'/g' geth/config.json
-sed -i -e 's/__VoterAccountPassword__/'"$VoterAccountPassword"'/g' geth/config.json
-sed -i -e 's/__IsBlockmaker__/'"${IsBlockmaker,,}"'/g' geth/config.json
-sed -i -e 's/__BlockmakerAccountAddress__/'"$BlockmakerAccountAddress"'/g' geth/config.json
-sed -i -e 's/__BlockmakerAccountPassword__/'"$BlockmakerAccountPassword"'/g' geth/config.json
-sed -i -e 's/__GethNetworkId__/'"$GethNetworkId"'/g' geth/config.json
-sed -i -e 's@__AzureStorageConnectionString__@'"$AzureStorageConnectionString"'@g' geth/config.json
-sed -i -e 's/__AzureTenant__/'"$AzureTenant"'/g' geth/config.json
-sed -i -e 's/__AzureSPNAppId__/'"$AzureSPNAppId"'/g' geth/config.json
-sed -i -e 's/__AzureSPNPassword__/'"$AzureSPNPassword"'/g' geth/config.json
+# Fetch the geth files from blob
+az login --service-principal -u $AzureSPNAppId -p $AzureSPNPassword --tenant $AzureTenant
+export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string \
+    --name $AzureBlobStorageName \
+    --resource-group $AzureResourceGroup \
+    | grep "connectionString" | awk '{ print $2 }')
+az storage blob download -c node -n files.zip -f ./node.zip
+unzip node.zip -d node
 
-# Inject bootnode config
-sed -i -e 's/__ContainerHostIp__/'"$ContainerHostIp"'/g' bootnode/config.json
-sed -i -e 's/__GethNetworkId__/'"$GethNetworkId"'/g' bootnode/config.json
-sed -i -e 's@__AzureStorageConnectionString__@'"$AzureStorageConnectionString"'@g' bootnode/config.json
-sed -i -e 's/__AzureTenant__/'"$AzureTenant"'/g' bootnode/config.json
-sed -i -e 's/__AzureSPNAppId__/'"$AzureSPNAppId"'/g' bootnode/config.json
-sed -i -e 's/__AzureSPNPassword__/'"$AzureSPNPassword"'/g' bootnode/config.json
+AzureTableStorageName=$AzureBlobStorageName
+AzureTableStorageSas=$(az storage table generate-sas --name networkbootnodes --account-name $AzureBlobStorageName --permissions raud)
 
-# Inject constellation config
+# Inject geth config values
+sed -i -e "s/__AzureTableStorageName__/$AzureTableStorageName/g" node/config.json
+sed -i -e "s/__AzureTableStorageSas__/$AzureTableStorageSas/g" node/config.json
+
+# Copy files to local geth source
+cp node/genesis.json geth/
+mkdir -p geth/keys
+cp node/key* geth/keys
+cp node/config.json geth/config.json
+cp node/config.json bootnode/config.json
+
+# Inject constellation config values
 sed -i -e "s/__OtherConstellationNodes__//g" constellation/node.conf
 
-# Inject cakeshop config
+# Inject cakeshop config values
+GethNetworkId=$(cat node/config.json | grep "GethNetworkId" | awk '{ print $2 }')
 sed -i -e 's/__GethNetworkId__/'"$GethNetworkId"'/g' quorum-bootnode.yml
-sed -i -e 's/__ContainerHostIp__/'"$ContainerHostIp"'/g' quorum-bootnode.yml
 
+# [Re]build docker images if desired
 if [[ "$Rebuild" = true ]]; then
   docker-compose -f quorum-bootnode.yml build
 fi
+
+# Bring up docker containers
 docker-compose -f quorum-bootnode.yml up -d

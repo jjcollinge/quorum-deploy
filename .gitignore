@@ -2,4 +2,7 @@ source/shared
 **/env.sh
 arm/run.sh
 arm/run2.sh
-arm/*.parameters.json
+arm/additionalMember.parameters.json
+node/*
+temp
+node.zip

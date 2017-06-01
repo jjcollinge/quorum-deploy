@@ -12,67 +12,57 @@ azure_storage_table="networkbootnodes"
 azure_partition_key=1494663149
 azure_row_key=$GETHNETWORKID
 bootnode_port=33445
-keys_blob_container="keys"
-keys_blob_file="keys.zip"
+blob_container="node"
+blob_file="files.zip"
 
-if [[ -z $AZURESTORAGECONNECTIONSTRING ]]; then
-    echo "Empty or invalid required config.json field: AzureStorageConnectionString"
-    exit 1
-fi
 if [[ -z $GETHNETWORKID ]]; then
-    echo "Empty or invalid required config.json field: GethNetworkId"
+    echo "Empty or invalid required config.json field: GethNetworkId">>temp/logs/start.log
     exit 1
 fi
 if [[ -z $AZURETENANT ]]; then
-    echo "Empty or invalid required config.json field: AzureTenant"
+    echo "Empty or invalid required config.json field: AzureTenant">>temp/logs/start.log
     exit 1
 fi
 if [[ -z $AZURESPNAPPID ]]; then
-    echo "Empty or invalid required config.json field: AzureSPNAppId"
+    echo "Empty or invalid required config.json field: AzureSPNAppId">>temp/logs/start.log
     exit 1
 fi
 if [[ -z $AZURESPNPASSWORD ]]; then
-    echo "Empty or invalid required config.json field: AzureSPNPassword"
+    echo "Empty or invalid required config.json field: AzureSPNPassword">>temp/logs/start.log
     exit 1
 fi
-export AZURE_STORAGE_CONNECTION_STRING=$AZURESTORAGECONNECTIONSTRING
-RequiresKeys() { [[ "${ISVOTER,,}" == 'true' || "${ISBLOCKMAKER,,}" == 'true' ]]; }
+if [[ -z $AZURETABLESTORAGENAME ]]; then
+    echo "Empty or invalid required config.json field: AzureResourceGroup">>temp/logs/start.log
+    exit 1
+fi
+if [[ -z $AZURETABLESTORAGESAS ]]; then
+    echo "Empty or invalid required config.json field: AzureResourceGroup">>temp/logs/start.log
+    exit 1
+fi
 
 # Login to Azure Storage with SPN
 echo "Logging into Azure">>temp/logs/start.log
 az login --service-principal -u $AZURESPNAPPID -p $AZURESPNPASSWORD --tenant $AZURETENANT >>temp/logs/azure.log
-
-# Grab keys from remote storage if required
-if RequiresKeys; then
-    exists=$(az storage blob exists -c $keys_blob_container -n $keys_blob_file)
-    if [[ $exists != *"true"* ]]; then
-        echo "ERORR: The remote blob $keys_blob_container/$keys_blob_file does not exists">>temp/logs/start.log
-        exit
-    fi
-    az storage blob download -c $keys_blob_container -n $keys_blob_file -f ./keys.zip >>temp/logs/azure.log
-    unzip ./keys.zip -d keys
-fi
 
 # Initialise Geth
 echo "Initialising geth">>temp/logs/start.log
 geth --datadir /opt/quorum/data init genesis.json
 
 # Copy key files into keystore
-if RequiresKeys; then
-    echo "Moving key files">>temp/logs/start.log
-    for key in "keys/key*"; do
-        cp $key /opt/quorum/data/keystore
-    done
-fi
+echo "Copying key files to keystore">>temp/logs/start.log
+for key in "keys/key*"; do
+    cp $key /opt/quorum/data/keystore
+done
 
 # Check bootnode registry exists
 echo "Checking whether bootnode registry '$azure_storage_table' exists">>temp/logs/start.log
-exists=$(az storage table exists --name $azure_storage_table)
+table_args="--account-name $AZURETABLESTORAGENAME --sas-token $AZURETABLESTORAGESAS"
+exists=$(az storage table exists --name $azure_storage_table $table_args)
 
 if [[ $exists == *"true"* ]]; then
     # Fetch current value
     echo "Fetching existing bootnodes from registry">>temp/logs/start.log
-    response=$(az storage entity show -t $azure_storage_table --partition-key $azure_partition_key --row-key $azure_row_key | grep -e "enode://" | awk '{ print $2 }')
+    response=$(az storage entity show -t $azure_storage_table --partition-key $azure_partition_key --row-key $azure_row_key $table_args | grep -e "enode://" | awk '{ print $2 }')
     current_bootnodes=${response:1:-2}
     echo "Current bootnodes: $current_bootnodes">>temp/logs/start.log
 fi

@@ -20,54 +20,6 @@
         "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
       }
     },
-    "isVoter": {
-      "type": "bool",
-      "metadata": {
-        "description": "Set this node as a Quorum voter"
-      }
-    },
-    "VoterAccountAddress": {
-      "type": "string",
-      "metadata": {
-        "description": "The voting account address for this node"
-      }
-    },
-    "VoterAccountPassword": {
-      "type": "string",
-      "metadata": {
-        "description": "The voting account password the voting account address"
-      }
-    },
-    "IsBlockmaker": {
-      "type": "bool",
-      "metadata": {
-        "description": "Set this node as a Quorum blockmaker"
-      }
-    },
-    "BlockmakerAccountAddress": {
-      "type": "string",
-      "metadata": {
-        "description": "The blockmaker account password the blockmaker account address"
-      }
-    },
-    "BlockmakerAccountPassword": {
-      "type": "string",
-      "metadata": {
-        "description": "The blockmaker account password the blockmaker account address"
-      }
-    },
-    "GethNetworkId": {
-      "type": "int",
-      "metadata": {
-        "description": "Network id of the Geth network"
-      }
-    },
-    "AzureStorageConnectionString": {
-      "type": "string",
-      "metadata": {
-        "description": "Azure storage account connection string"
-      }
-    },
     "AzureTenant": {
       "type": "string",
       "metadata": {
@@ -86,18 +38,12 @@
         "description": "Azure service principal password"
       }
     },
-    "OtherConstellationNodes": {
+    "AzureBlobStorageName": {
       "type": "string",
       "metadata": {
-        "description": "An array of existing constellation endpoints i.e. \"http://localhost:9000\""
+        "description": "Azure blob storage account name"
       }
-    },
-    "ContainerHostIp": {
-      "type": "string",
-      "metadata": {
-        "description": "The host IP of the bootnode container"
-      }
-    },
+    }
   },
   "variables": {
     "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'salinuxvm')]",
@@ -119,7 +65,8 @@
     "extensionName": "DockerExtension",
     "nsgName": "myNSG",
     "nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('nsgName'))]",
-    "scriptUrl": "https://raw.githubusercontent.com/jjcollinge/quorum-deploy/master/arm/setupFirstMember.sh"
+    "scriptUrl": "https://raw.githubusercontent.com/jjcollinge/quorum-deploy/master/arm/setupFirstMember.sh",
+    "scriptCommand": "[concat('bash setupFirstMember.sh',' -a \"',parameters('AzureTenant'),'\" -b \"',parameters('AzureSPNAppId'),'\" -c \"',parameters('AzureSPNPassword'),'\" -d \"',resourceGroup().name,'\" -e \"',parameters('AzureBlobStorageName'),'\" -f false')]"
   },
   "resources": [
     {
@@ -407,7 +354,7 @@
           "fileUris": [
             "[variables('scriptUrl')]"
           ],
-          "commandToExecute": "[concat('bash setupFirstMember.sh',' -a ',parameters('isVoter'),' -b \"',parameters('VoterAccountAddress'),'\" -c \"',parameters('VoterAccountPassword'),'\" -d ',parameters('IsBlockmaker'),' -e \"',parameters('BlockmakerAccountAddress'),'\" -f \"',parameters('BlockmakerAccountPassword'),'\" -g ',parameters('GethNetworkId'),' -h \"',parameters('AzureStorageConnectionString'),'\" -i \"',parameters('AzureTenant'),'\" -j \"',parameters('AzureSPNAppId'),'\" -k \"',parameters('AzureSPNPassword'),'\" -l \"','0.0.0.0','\" -m \"',parameters('OtherConstellationNodes'),'\" -n false')]"
+          "commandToExecute": "[variables('scriptCommand')]"
         }
       }
     }

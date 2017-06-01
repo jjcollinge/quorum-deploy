@@ -1,0 +1,27 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "value": "azureuser"
+    },
+    "adminPassword": {
+      "value": "AbcAbc123123!"
+    },
+    "dnsLabelPrefix": {
+      "value": "djunique15"
+    },
+    "AzureTenant": {
+      "value": "__AzureTenant__"
+    },
+    "AzureSPNAppId": {
+      "value": "__AzureSPNAppId__"
+    },
+    "AzureSPNPassword": {
+      "value": "__AzureSPNPassword__"
+    },
+    "AzureBlobStorageName": {
+      "value": "__AzureBlobStorageName__"
+    }
+  }
+}
