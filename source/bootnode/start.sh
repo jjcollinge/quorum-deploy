@@ -38,6 +38,10 @@ if [[ -z $AZURESPNAPPID ]]; then
     echo "Empty or invalid required config.json field: AzureSPNAppId">>logs/start.log
     exit 1
 fi
+if [[ -z $AZURESUBSCRIPTIONID ]]; then
+    echo "Empty or invalid required config.json field: AzureSubscriptionId">>temp/logs/start.log
+    exit 1
+fi
 if [[ -z $AZURESPNPASSWORD ]]; then
     echo "Empty or invalid required config.json field: AzureSPNPassword">>logs/start.log
     exit 1
@@ -54,6 +58,7 @@ fi
 # Login to Azure Storage with SPN
 echo "Logging into Azure">>temp/logs/start.log
 az login --service-principal -u $AZURESPNAPPID -p $AZURESPNPASSWORD --tenant $AZURETENANT >>temp/logs/azure.log
+az account set -s $AzureSubscriptionId >>temp/logs/azure.log
 
 # Grab the bootnode public key
 local_bootnode=$(grep -i "listening" logs/bootnode.log | awk '{print $5}' | head -n 1)

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-while getopts ":a:b:c:d:e:f:" opt; do
+while getopts ":a:b:c:d:e:f:g:" opt; do
   case "$opt" in
     a) AzureTenant="$OPTARG"
     ;;
@@ -8,11 +8,13 @@ while getopts ":a:b:c:d:e:f:" opt; do
     ;;
     c) AzureSPNPassword="$OPTARG"
     ;;
-    d) AzureResourceGroup="$OPTARG"
+    d) AzureSubscriptionId="$OPTARG"
     ;;
-    e) AzureBlobStorageName="$OPTARG"
+    e) AzureResourceGroup="$OPTARG"
     ;;
-    f) Rebuild="$OPTARG"
+    f) AzureBlobStorageName="$OPTARG"
+    ;;
+    g) Rebuild="$OPTARG"
     ;;
   esac
 done
@@ -35,6 +37,8 @@ cd quorum-deploy/source/
 
 # Fetch the geth files from blob
 az login --service-principal -u $AzureSPNAppId -p $AzureSPNPassword --tenant $AzureTenant
+az account set -s $AzureSubscriptionId
+
 export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string \
     --name $AzureBlobStorageName \
     --resource-group $AzureResourceGroup \

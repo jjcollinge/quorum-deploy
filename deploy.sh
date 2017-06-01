@@ -55,9 +55,14 @@ AzureSPNPassword=$(cat $NodeDir/config.json | grep "AzureSPNPassword" | awk '{ p
 AzureSPNPassword="${AzureSPNPassword%\"*}"
 AzureSPNPassword="${AzureSPNPassword#\"}"
 echo "AzureSPNPassword: $AzureSPNPassword"
+AzureSubscriptionId=$(cat $NodeDir/config.json | grep "AzureSubscriptionId" | awk '{ print $2 }')
+AzureSubscriptionId="${AzureSubscriptionId%\"*}"
+AzureSubscriptionId="${AzureSubscriptionId#\"}"
+echo "AzureSubscriptionId: $AzureSubscriptionId"
 echo
 
 az login --service-principal -u $AzureSPNAppId -p $AzureSPNPassword --tenant $AzureTenant
+az account set -s $AzureSubscriptionId
 
 # Create resource group
 RandomString=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 10 | head -n 1)

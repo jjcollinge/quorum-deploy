@@ -38,6 +38,12 @@
         "description": "Azure service principal password"
       }
     },
+    "AzureSubscriptionId":{
+      "type": "string",
+      "metadata": {
+        "description": "Azure subscription id"
+      }
+    },
     "AzureBlobStorageName": {
       "type": "string",
       "metadata": {
@@ -66,7 +72,7 @@
     "nsgName": "myNSG",
     "nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('nsgName'))]",
     "scriptUrl": "https://raw.githubusercontent.com/jjcollinge/quorum-deploy/master/arm/setupFirstMember.sh",
-    "scriptCommand": "[concat('bash setupFirstMember.sh',' -a \"',parameters('AzureTenant'),'\" -b \"',parameters('AzureSPNAppId'),'\" -c \"',parameters('AzureSPNPassword'),'\" -d \"',resourceGroup().name,'\" -e \"',parameters('AzureBlobStorageName'),'\" -f false')]"
+    "scriptCommand": "[concat('bash setupFirstMember.sh',' -a \"',parameters('AzureTenant'),'\" -b \"',parameters('AzureSPNAppId'),'\" -c \"',parameters('AzureSPNPassword'),'\" -d \"',parameters('AzureSubscriptionId'),'\" -e \"',resourceGroup().name,'\" -f \"',parameters('AzureBlobStorageName'),'\" -g false')]"
   },
   "resources": [
     {

@@ -20,6 +20,9 @@
     "AzureSPNPassword": {
       "value": "__AzureSPNPassword__"
     },
+    "AzureSubscriptionId": {
+      "value": "__AzureSubscriptionId__"
+    },
     "AzureBlobStorageName": {
       "value": "__AzureBlobStorageName__"
     }
