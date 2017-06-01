@@ -42,7 +42,22 @@ zip -r node.zip $NodeDir
 
 # Login into Azure
 echo "Logging into Azure"
-az login
+echo ".................."
+AzureTenant=$(cat $NodeDir/config.json | grep "AzureTenant" | awk '{ print $2 }')
+AzureTenant="${AzureTenant%\"*}"
+AzureTenant=$(echo "$AzureTenant" | tr -d '",')
+echo "AzureTenant: $AzureTenant"
+AzureSPNAppId=$(cat $NodeDir/config.json | grep "AzureSPNAppId" | awk '{ print $2 }')
+AzureSPNAppId="${AzureSPNAppId%\"*}"
+AzureSPNAppId=$(echo "$AzureSPNAppId" | tr -d '",')
+echo "AzureSPNAppId: $AzureSPNAppId"
+AzureSPNPassword=$(cat $NodeDir/config.json | grep "AzureSPNPassword" | awk '{ print $2 }')
+AzureSPNPassword="${AzureSPNPassword%\"*}"
+AzureSPNPassword="${AzureSPNPassword#\"}"
+echo "AzureSPNPassword: $AzureSPNPassword"
+echo
+
+az login --service-principal -u $AzureSPNAppId -p $AzureSPNPassword --tenant $AzureTenant
 
 # Create resource group
 RandomString=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 10 | head -n 1)
@@ -61,18 +76,6 @@ az storage account create --name $StorageName\
 mkdir -p temp
 TempParamsFile="temp/$ResourceGroupName.json"
 cp $TemplateParametersFilePath $TempParamsFile
-AzureTenant=$(cat $NodeDir/config.json | grep "AzureTenant" | awk '{ print $2 }')
-AzureTenant="${AzureTenant%\"*}"
-AzureTenant=$(echo "$AzureTenant" | tr -d '",')
-echo "AzureTenant: $AzureTenant"
-AzureSPNAppId=$(cat $NodeDir/config.json | grep "AzureSPNAppId" | awk '{ print $2 }')
-AzureSPNAppId="${AzureSPNAppId%\"*}"
-AzureSPNAppId=$(echo "$AzureSPNAppId" | tr -d '",')
-echo "AzureSPNAppId: $AzureSPNAppId"
-AzureSPNPassword=$(cat $NodeDir/config.json | grep "AzureSPNPassword" | awk '{ print $2 }')
-AzureSPNPassword="${AzureSPNPassword%\"*}"
-AzureSPNPassword="${AzureSPNPassword#\"}"
-echo "AzureSPNPassword: $AzureSPNPassword"
 sed -i "s/__AzureBlobStorageName__/$StorageName/g" $TempParamsFile
 sed -i "s/__AzureSPNAppId__/$AzureSPNAppId/g" $TempParamsFile
 sed -i "s/__AzureSPNPassword__/$AzureSPNPassword/g" $TempParamsFile
