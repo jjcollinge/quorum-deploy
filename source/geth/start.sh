@@ -36,11 +36,11 @@ if [[ -z $AZURESUBSCRIPTIONID ]]; then
     exit 1
 fi
 if [[ -z $AZURETABLESTORAGENAME ]]; then
-    echo "Empty or invalid required config.json field: AzureResourceGroup">>temp/logs/start.log
+    echo "Empty or invalid required config.json field: AzureTableStorageName">>temp/logs/start.log
     exit 1
 fi
 if [[ -z $AZURETABLESTORAGESAS ]]; then
-    echo "Empty or invalid required config.json field: AzureResourceGroup">>temp/logs/start.log
+    echo "Empty or invalid required config.json field: AzureTableStorageSas">>temp/logs/start.log
     exit 1
 fi
 

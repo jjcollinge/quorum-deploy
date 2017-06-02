@@ -63,7 +63,17 @@ AzureTableStorageSas=$(az storage table generate-sas --name networkbootnodes --a
 # Inject table storage details if not provided (i.e. is firstMember)
 echo "Injecting values into config">>setup.log
 if ! grep -q "AzureTableStorageName" /opt/quorum-deploy/node/config.json; then
-    python addkvptoconfig.py "AzureTableStorageName=$AzureTableStorageName" "AzureTableStorageSas=$AzureTableStorageSas"
+    python << END
+      import json
+      import sys
+      config_file = '/opt/quorum/config.json'
+      with open(config_file, 'r') as json_file:
+          json_decoded = json.load(json_file)
+      json_decoded["AzureTableStorageName"] = $AzureTableStorageName
+      json_decoded["AzureTableStorageSas"] = $AzureTableStorageSas
+      with open(config_file, 'w') as json_file:
+          json.dump(json_decoded, json_file, indent=4, separators=(',', ': '))
+    END
 fi
 
 # Copy files to local geth source

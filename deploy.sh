@@ -25,25 +25,37 @@ function usage {
     exit 1
 }
 
+function info {
+    echo
+    echo "-------------------------------"
+    echo $1
+    echo "-------------------------------"
+}
+
+function error {
+    >&2 echo $1
+}
+
 if [ -z "$ResourceGroupPrefix" ] || [ -z "$ResourceGroupLocation" ] || [ -z "$TemplateFilePath" ] || [ -z "$TemplateParametersFilePath" ] || [ -z "$NodeDir" ]; then
     usage
 fi
 
 # Check required files exists
 if [[ ! -d $NodeDir ]]; then
-    echo "None existent node directory ($NodeDir) provided"
+    error "None existent node directory ($NodeDir) provided"
+    exit 1
 fi
-if [[ ! -f node/gensis.json ]]; then
-    echo "No genesis.json file provided"
+if [[ ! -f "$NodeDir/genesis.json" ]]; then
+    error "No genesis.json file provided"
+    exit 1
 fi
 
 # Create zip of files
-echo "Creating zip"
+info "Creating zip"
 zip -r node.zip $NodeDir
 
 # Login into Azure
-echo "Logging into Azure"
-echo ".................."
+info "Logging into Azure"
 AzureTenant=$(cat $NodeDir/config.json | grep "AzureTenant" | awk '{ print $2 }')
 AzureTenant="${AzureTenant%\"*}"
 AzureTenant=$(echo "$AzureTenant" | tr -d '",')
@@ -68,12 +80,12 @@ az account set -s $AzureSubscriptionId
 # Create resource group
 RandomString=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 10 | head -n 1)
 ResourceGroupName="$ResourceGroupPrefix$RandomString"
-echo "Creating resource group $ResourceGroupName"
+info "Creating resource group $ResourceGroupName"
 az group create -n $ResourceGroupName -l $ResourceGroupLocation
 
 # Create Storage Account
 StorageName="storage$RandomString"
-echo "Creating storage account $StorageName"
+info "Creating storage account $StorageName"
 az storage account create --name $StorageName\
                           --resource-group $ResourceGroupName\
                           --sku Standard_LRS
@@ -95,15 +107,15 @@ export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-stri
     | grep "connectionString" | awk '{ print $2 }')
 
 # Create new blob storage container
-echo "Creating blob container"
+info "Creating blob container"
 az storage container create -n node
 
 # Upload zip to blob container
-echo "Uploading blob"
+info "Uploading blob"
 az storage blob upload -f node.zip -c node -n files.zip
 
 # Start ARM deployment
-echo "Starting Azure deployment"
+info "Starting Azure deployment"
 echo "Template file: $TemplateFilePath"
 echo "Parameters file: $TemplateParametersFilePath"
 az group deployment create -g $ResourceGroupName --template-file "$TemplateFilePath" --parameters "@$TempParamsFile" --debug
