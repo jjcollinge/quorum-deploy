@@ -47,7 +47,7 @@ fi
 # Login to Azure Storage with SPN
 echo "Logging into Azure">>temp/logs/start.log
 az login --service-principal -u $AZURESPNAPPID -p $AZURESPNPASSWORD --tenant $AZURETENANT >>temp/logs/azure.log
-az account set -s $AzureSubscriptionId >>temp/logs/azure.log
+az account set -s $AZURESUBSCRIPTIONID >>temp/logs/azure.log
 
 # Initialise Geth
 echo "Initialising geth">>temp/logs/start.log

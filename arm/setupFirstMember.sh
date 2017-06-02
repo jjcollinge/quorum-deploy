@@ -21,7 +21,7 @@ done
 
 if [[ $(dpkg -l | grep az | wc -l) == 0 ]]; then
   # Install azure cli 2.0
-  echo "Installing Azure CLI 2.0">>setup.log
+  echo "Installing Azure CLI 2.0" | tee setup.log
   echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \
       tee /etc/apt/sources.list.d/azure-cli.list
 
@@ -32,22 +32,22 @@ fi
 
 if [[ $(dpkg -l | grep unzip | wc -l) == 0 ]]; then
   # Install unzip
-  echo "Installing unzip">>setup.log
+  echo "Installing unzip" | tee setup.log
   apt-get install -y unzip
 fi
 
 # Clone the source from remote location
-echo "Cloning source repo">>setup.log
+echo "Cloning source repo" | tee setup.log
 cd /opt
 git clone https://github.com/jjcollinge/quorum-deploy
 cd quorum-deploy/source/
 
 # Fetch the geth files from blob
-echo "Fetching geth files from blob">>setup.log
+echo "Fetching geth files from blob" | tee setup.log
 az login --service-principal -u $AzureSPNAppId -p $AzureSPNPassword --tenant $AzureTenant
 az account set -s $AzureSubscriptionId
 
-echo "Downloading blob">>setup.log
+echo "Downloading blob" | tee setup.log
 export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string \
     --name $AzureBlobStorageName \
     --resource-group $AzureResourceGroup \
@@ -56,28 +56,30 @@ az storage blob download -c node -n files.zip -f /opt/quorum-deploy/node.zip
 unzip /opt/quorum-deploy/node.zip -d /opt/quorum-deploy
 
 # Generate a sas token for table storage
-echo "Generating SAS token for table storage">>setup.log
+echo "Generating SAS token for table storage" | tee setup.log
 AzureTableStorageName=$AzureBlobStorageName
 AzureTableStorageSas=$(az storage table generate-sas --name networkbootnodes --account-name $AzureBlobStorageName --permissions raud)
 
 # Inject table storage details if not provided (i.e. is firstMember)
-echo "Injecting values into config">>setup.log
+echo "Injecting values into config" | tee setup.log
 if ! grep -q "AzureTableStorageName" /opt/quorum-deploy/node/config.json; then
 python << END
-  import json
-  import sys
-  config_file = '/opt/quorum/config.json'
-  with open(config_file, 'r') as json_file:
-      json_decoded = json.load(json_file)
-  json_decoded["AzureTableStorageName"] = $AzureTableStorageName
-  json_decoded["AzureTableStorageSas"] = $AzureTableStorageSas
-  with open(config_file, 'w') as json_file:
-      json.dump(json_decoded, json_file, indent=4, separators=(',', ': '))
+import json
+import sys
+config_file = '/opt/quorum-deploy/node/config.json'
+with open(config_file, 'r') as json_file:
+  json_decoded = json.load(json_file)
+json_decoded["AzureTableStorageName"] = "$AzureTableStorageName"
+json_decoded["AzureTableStorageSas"] = $AzureTableStorageSas
+with open(config_file, 'w') as json_file:
+  json.dump(json_decoded, json_file, indent=4, separators=(',', ': '))
 END
 fi
+echo "New config..."
+cat /opt/quorum-deploy/node/config.json
 
 # Copy files to local geth source
-echo "Copying files to local geth source">>setup.log
+echo "Copying files to local geth source" | tee setup.log
 cp /opt/quorum-deploy/node/genesis.json /opt/quorum-deploy/source/geth/
 mkdir -p /opt/quorum-deploy/source/geth/keys
 cp /opt/quorum-deploy/node/key* /opt/quorum-deploy/source/geth/keys
@@ -93,10 +95,10 @@ sed -i -e 's/__GethNetworkId__/'"$GethNetworkId"'/g' /opt/quorum-deploy/source/q
 
 # [Re]build docker images if desired
 if [[ "$Rebuild" = true ]]; then
-  echo "Building docker images">>setup.log
+  echo "Building docker images" | tee setup.log
   docker-compose -f /opt/quorum-deploy/source/quorum-bootnode.yml build
 fi
 
 # Bring up docker containers
-echo "Bringing up docker containers...">>setup.log
+echo "Bringing up docker containers..." | tee setup.log
 docker-compose -f /opt/quorum-deploy/source/quorum-bootnode.yml up -d
