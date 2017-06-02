@@ -19,18 +19,22 @@ while getopts ":a:b:c:d:e:f:g:" opt; do
   esac
 done
 
-# Install Azure CLI 2.0
-echo "Installing Azure CLI 2.0">>setup.log
-echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \
-     sudo tee /etc/apt/sources.list.d/azure-cli.list
+if [[ $(dpkg -l | grep az | wc -l) == 0 ]]; then
+  # Install azure cli 2.0
+  echo "Installing Azure CLI 2.0">>setup.log
+  echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \
+      tee /etc/apt/sources.list.d/azure-cli.list
 
-sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893
-sudo apt-get install apt-transport-https
-sudo apt-get update && sudo apt-get install azure-cli
+  apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893
+  apt-get install -y apt-transport-https
+  apt-get update && apt-get install -y azure-cli
+fi
 
-# Install unzip
-echo "Installing unzip">>setup.log
-sudo apt-get install -y unzip
+if [[ $(dpkg -l | grep unzip | wc -l) == 0 ]]; then
+  # Install unzip
+  echo "Installing unzip">>setup.log
+  apt-get install -y unzip
+fi
 
 # Clone the source from remote location
 echo "Cloning source repo">>setup.log
@@ -48,8 +52,8 @@ export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-stri
     --name $AzureBlobStorageName \
     --resource-group $AzureResourceGroup \
     | grep "connectionString" | awk '{ print $2 }')
-az storage blob download -c node -n files.zip -f ./node.zip
-unzip node.zip -d node
+az storage blob download -c node -n files.zip -f /opt/quorum-deploy/node.zip
+unzip /opt/quorum-deploy/node.zip -d /opt/quorum-deploy
 
 # Generate a sas token for table storage
 echo "Generating SAS token for table storage">>setup.log
@@ -58,31 +62,31 @@ AzureTableStorageSas=$(az storage table generate-sas --name networkbootnodes --a
 
 # Inject table storage details if not provided (i.e. is firstMember)
 echo "Injecting values into config">>setup.log
-if ! grep -q "AzureTableStorageName" node/config.json; then
+if ! grep -q "AzureTableStorageName" /opt/quorum-deploy/node/config.json; then
     python addkvptoconfig.py "AzureTableStorageName=$AzureTableStorageName" "AzureTableStorageSas=$AzureTableStorageSas"
 fi
 
 # Copy files to local geth source
 echo "Copying files to local geth source">>setup.log
-cp node/genesis.json geth/
-mkdir -p geth/keys
-cp node/key* geth/keys
-cp node/config.json geth/config.json
-cp node/config.json bootnode/config.json
+cp /opt/quorum-deploy/node/genesis.json /opt/quorum-deploy/source/geth/
+mkdir -p /opt/quorum-deploy/source/geth/keys
+cp /opt/quorum-deploy/node/key* /opt/quorum-deploy/source/geth/keys
+cp /opt/quorum-deploy/node/config.json /opt/quorum-deploy/source/geth/config.json
+cp /opt/quorum-deploy/node/config.json /opt/quorum-deploy/source/bootnode/config.json
 
 # Inject constellation config values
-sed -i -e "s/__OtherConstellationNodes__//g" constellation/node.conf
+sed -i -e "s/__OtherConstellationNodes__//g" /opt/quorum-deploy/source/constellation/node.conf
 
 # Inject cakeshop config values
-GethNetworkId=$(cat node/config.json | grep "GethNetworkId" | awk '{ print $2 }')
-sed -i -e 's/__GethNetworkId__/'"$GethNetworkId"'/g' quorum-bootnode.yml
+GethNetworkId=$(cat /opt/quorum-deploy/node/config.json | grep "GethNetworkId" | awk '{ print $2 }' | sed 's/[^0-9]*//g')
+sed -i -e 's/__GethNetworkId__/'"$GethNetworkId"'/g' /opt/quorum-deploy/source/quorum-bootnode.yml
 
 # [Re]build docker images if desired
 if [[ "$Rebuild" = true ]]; then
   echo "Building docker images">>setup.log
-  docker-compose -f quorum-bootnode.yml build
+  docker-compose -f /opt/quorum-deploy/source/quorum-bootnode.yml build
 fi
 
 # Bring up docker containers
 echo "Bringing up docker containers...">>setup.log
-docker-compose -f quorum-bootnode.yml up -d
+docker-compose -f /opt/quorum-deploy/source/quorum-bootnode.yml up -d
