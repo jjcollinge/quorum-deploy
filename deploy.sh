@@ -15,17 +15,18 @@ while getopts ":n:l:t:p:d:" opt; do
   esac
 done
 
-if [ -z "$ResourceGroupPrefix" ] || [ -z "$ResourceGroupLocation" ] || [ -z "$TemplateFilePath" ] || [ -z "$TemplateParametersFilePath" ] || [ -z "$NodeDir" ]; then
-    echo "Usage:"
-    echo "------"
-    echo "Required arguments: -n, -l, -t, -p, -d"
-    echo
-    echo "-n : Azure resource group name"
-    echo "-l : Azure resource group location"
-    echo "-t : ARM template file path"
-    echo "-p : ARM template parameters file path"
-    echo "-d : Local node directory"
+function usage {
+    echo "usage: $programname [-n resourcegroup ] [-l location ] [-t templatefile ] [-p parameterfile ] [-d node ]"
+    echo "  -n resourcegroup     specify an azure resource group"
+    echo "  -l location     specify an azure location"
+    echo "  -t templatefile     specify an arm template file"
+    echo "  -p parameterfile     specify an arm parameters file"
+    echo "  -d node     specify a local node directory"
     exit 1
+}
+
+if [ -z "$ResourceGroupPrefix" ] || [ -z "$ResourceGroupLocation" ] || [ -z "$TemplateFilePath" ] || [ -z "$TemplateParametersFilePath" ] || [ -z "$NodeDir" ]; then
+    usage
 fi
 
 # Check required files exists
@@ -85,6 +86,7 @@ sed -i "s/__AzureBlobStorageName__/$StorageName/g" $TempParamsFile
 sed -i "s/__AzureSPNAppId__/$AzureSPNAppId/g" $TempParamsFile
 sed -i "s/__AzureSPNPassword__/$AzureSPNPassword/g" $TempParamsFile
 sed -i "s/__AzureTenant__/$AzureTenant/g" $TempParamsFile
+sed -i "s/__AzureSubscriptionId__/$AzureSubscriptionId/g" $TempParamsFile
 
 # Set storage account connection string
 export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string \
