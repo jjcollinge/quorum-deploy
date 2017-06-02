@@ -46,12 +46,14 @@ export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-stri
 az storage blob download -c node -n files.zip -f ./node.zip
 unzip node.zip -d node
 
+# Generate a sas token for table storage
 AzureTableStorageName=$AzureBlobStorageName
 AzureTableStorageSas=$(az storage table generate-sas --name networkbootnodes --account-name $AzureBlobStorageName --permissions raud)
 
-# Inject geth config values
-sed -i -e "s/__AzureTableStorageName__/$AzureTableStorageName/g" node/config.json
-sed -i -e "s/__AzureTableStorageSas__/$AzureTableStorageSas/g" node/config.json
+# Inject table storage details if not provided (i.e. is firstMember)
+if ! grep -q "AzureTableStorageName" node/config.json; then
+    python addkvptoconfig.py "AzureTableStorageName=$AzureTableStorageName" "AzureTableStorageSas=$AzureTableStorageSas"
+fi
 
 # Copy files to local geth source
 cp node/genesis.json geth/
