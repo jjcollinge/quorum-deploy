@@ -1,102 +1,113 @@
 #!/bin/bash
 
-echo "Starting geth initialisation" | tee setup.log
+LOG_FILE="temp/logs/start.log"
+TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 
-# Load config
-echo "Loading configuration file" | tee -a temp/logs/start.log
+# Create log file if doesn't already exist
+if [[ ! -f $LOG_FILE ]]; then
+    LOG_DIR=dirname $LOG_FILE
+    mkdir -p $LOG_DIR
+    touch $LOG_FILE
+fi
+
+function log ()
+{
+    echo "$TIMESTAMP $1" | tee -a $LOG_FILE
+}
+
+function ensureVarSet ()
+{
+    if [[ -z $1 ]]; then
+        log "The environment variable $1 is not set, this is required!"
+        exit 1
+    fi
+}
+
+log "Starting geth initialisation"
+
+# Load config from file
+# this is delegated to python
+# could be replaced with jq
+log "Loading configuration file"
 rm -f /opt/quorum/env.sh
 python /opt/quorum/loadconfig.py
 source /opt/quorum/env.sh
 
 # Define global constants
-local_ip="0.0.0.0"
-azure_storage_table="networkbootnodes"
-azure_partition_key=1494663149
-azure_row_key=$GETHNETWORKID
-bootnode_port=33445
-blob_container="node"
-blob_file="files.zip"
+AZURE_STORAGE_TABLE="networkbootnodes"
+AZURE_PARTITION_KEY=1494663149
+AZURE_ROW_KEY=$GETHNETWORKID
+BOOTNODE_PORT=33445
+BLOB_CONTAINER="node"
+BLOB_FILE="files.zip"
+KEYSTORE="/opt/quorum/data/KEYSTORE"
 
-if [[ -z $GETHNETWORKID ]]; then
-    echo "Empty or invalid required config.json field: GethNetworkId" | tee -a temp/logs/start.log
-    exit 1
-fi
-if [[ -z $AZURETENANT ]]; then
-    echo "Empty or invalid required config.json field: AzureTenant" | tee -a temp/logs/start.log
-    exit 1
-fi
-if [[ -z $AZURESPNAPPID ]]; then
-    echo "Empty or invalid required config.json field: AzureSPNAppId" | tee -a temp/logs/start.log
-    exit 1
-fi
-if [[ -z $AZURESPNPASSWORD ]]; then
-    echo "Empty or invalid required config.json field: AzureSPNPassword" | tee -a temp/logs/start.log
-    exit 1
-fi
-if [[ -z $AZURESUBSCRIPTIONID ]]; then
-    echo "Empty or invalid required config.json field: AzureSubscriptionId" | tee -a temp/logs/start.log
-    exit 1
-fi
-if [[ -z $AZURETABLESTORAGENAME ]]; then
-    echo "Empty or invalid required config.json field: AzureTableStorageName" | tee -a temp/logs/start.log
-    exit 1
-fi
-if [[ -z $AZURETABLESTORAGESAS ]]; then
-    echo "Empty or invalid required config.json field: AzureTableStorageSas" | tee -a temp/logs/start.log
-    exit 1
-fi
+# Ensure all required varaibles are set
+ensureVarSet $GETHNETWORKID
+ensureVarSet $AZURETENANT
+ensureVarSet $AZURESPNAPPID
+ensureVarSet $AZURESPNPASSWORD
+ensureVarSet $AZURESUBSCRIPTIONID
+ensureVarSet $AZURETABLESTORAGENAME
+ensureVarSet $AZURETABLESTORAGESAS
 
 # Login to Azure Storage with SPN
-echo "Logging into Azure" | tee -a temp/logs/start.log
-az login --service-principal -u $AZURESPNAPPID -p $AZURESPNPASSWORD --tenant $AZURETENANT | tee -a temp/logs/start.log
-az account set -s $AZURESUBSCRIPTIONID  | tee -a temp/logs/start.log
+log "Logging into Azure"
+az login --service-principal -u $AZURESPNAPPID -p $AZURESPNPASSWORD --tenant $AZURETENANT 2>&1 >> $LOG_FILE
+az account set -s $AZURESUBSCRIPTIONID 2>&1 >> $LOG_FILE
 
-# Initialise Geth
-echo "Initialising geth" | tee -a temp/logs/start.log
+# Initialise Geth client
+log "Initialising geth"
 geth --datadir /opt/quorum/data init genesis.json
 
-# Copy key files into keystore
-echo "Copying key files to keystore" | tee -a temp/logs/start.log
-for key in "keys/key*"; do
-    cp $key /opt/quorum/data/keystore
+# Copy key files into geth's keystore
+log "Copying key files to keystore"
+for KEY in "keys/key*"; do
+    cp $KEY $KEYSTORE
 done
 
 # Check bootnode registry exists
-echo "Checking whether bootnode registry '$azure_storage_table' exists" | tee -a temp/logs/start.log
+log "Checking whether bootnode registry '$AZURE_STORAGE_TABLE' exists"
 table_args="--account-name $AZURETABLESTORAGENAME --sas-token $AZURETABLESTORAGESAS"
-exists=$(az storage table exists --name $azure_storage_table $table_args)
+exists=$(az storage table exists --name $AZURE_STORAGE_TABLE $table_args)
 
 if [[ $exists == *"true"* ]]; then
-    # Fetch current value
-    echo "Fetching existing bootnodes from registry" | tee -a temp/logs/start.log
-    response=$(az storage entity show -t $azure_storage_table --partition-key $azure_partition_key --row-key $azure_row_key $table_args | grep -e "enode://" | awk '{ print $2 }')
+    # Bootnode registry exists - fetching current values
+    log "Bootnode registry exists, fetching existing values from registry"
+    response=$(az storage entity show -t $AZURE_STORAGE_TABLE --partition-key $AZURE_PARTITION_KEY --row-key $AZURE_ROW_KEY $table_args | grep -e "enode://" | awk '{ print $2 }')
     current_bootnodes=${response:1:-2}
-    echo "Current bootnodes: $current_bootnodes" | tee -a temp/logs/start.log
+    log "Existing bootnodes: $current_bootnodes"
 else
-    echo "Table storage should have been provisioned!" | tee -a temp/logs/start.log
+    # Bootnode registry doesn't exist, something has failed
+    log "Bootnode registry should have already been provisioned!"
     exit 1
 fi
 
 if [[ -z $current_bootnodes ]]; then
-    # Don't use bootnodes
-    echo "No existing bootnodes in registry" | tee -a temp/logs/start.log
+    # No existing bootnodes
+    log "No existing bootnodes in registry"
     bootnode_args=""
 else
-    # Use bootnodes
+    # Use existing bootnodes
+    log "Using existing bootnodes from registry"
     bootnode_args="--bootnodes $current_bootnodes"
 fi
 
-# Start Geth
+# Setting Geth cmdline arguments
 args="--datadir /opt/quorum/data $bootnode_args --networkid $GETHNETWORKID --rpc --rpcaddr 0.0.0.0 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,quorum --rpcport 8545 --port 30303"
 
+# Inject Quorum role details if present
 if [[ "${ISVOTER,,}" = 'true' ]];then
+    log "Configuring client as voter"
     args="$args --voteaccount $VOTERACCOUNTADDRESS --votepassword \"${VOTERACCOUNTPASSWORD}\" "
 fi
 
 if [[ "${ISBLOCKMAKER,,}" = 'true' ]];then
+    log "Configuring client as blockmaker"
     args="$args --blockmakeraccount $BLOCKMAKERACCOUNTADDRESS --blockmakerpassword \"${BLOCKMAKERACCOUNTPASSWORD}\" "
 fi
 
-echo "Starting geth with args: $args" | tee -a temp/logs/start.log
+# Start Geth
+log "Starting Geth with args: $args"
 PRIVATE_CONFIG=/opt/quorum/data/constellation.ipc
-eval geth "${args}" 2>>temp/logs/geth.log
+eval geth "${args}" 2>&1 > geth.log

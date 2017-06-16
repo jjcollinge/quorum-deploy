@@ -1,99 +1,105 @@
 #!/bin/bash
 
-# Start local bootnode
-nohup bootnode -genkey bootnode.key -addr "0.0.0.0:33445" 2>>logs/bootnode.log &
+LOG_FILE="logs/start.log"
+TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+
+# Create log file if doesn't already exist
+if [[ ! -f $LOG_FILE ]]; then
+    LOG_DIR=dirname $LOG_FILE
+    mkdir -p $LOG_DIR
+    touch $LOG_FILE
+fi
+
+function log ()
+{
+    echo "$TIMESTAMP $1" | tee -a $LOG_FILE
+}
+
+function ensureVarSet ()
+{
+    if [[ -z $1 ]]; then
+        log "The environment variable $1 is not set, this is required!"
+        exit 1
+    fi
+}
+
+# Start a local bootnode
+nohup bootnode -genkey bootnode.key -addr "0.0.0.0:33445" 2>&1 > "logs/bootnode.log" &
 
 # Wait for bootnode to start listening
-sleep 6
+log "Waiting for bootnode to start..."
+for i in $(seq 1 6); do echo -ne "." 2>&1 > $LOG_FILE; sleep 1; done
+echo "" 2>&1 > $LOG_FILE
 
 # Load config
-echo "Loading configuration file">>logs/start.log
+log "Loading configuration file"
 rm -f /opt/bootnode/env.sh
 python /opt/bootnode/loadconfig.py
 source /opt/bootnode/env.sh
 
 # Define global constants
-azure_storage_table="networkbootnodes"
-azure_partition_key=1494663149
-azure_row_key=$GETHNETWORKID
-external_port=33445
-
+AZURE_STORAGE_TABLE="networkbootnodes"
+AZURE_PARTITION_KEY=1494663149
+AZURE_ROW_KEY=$GETHNETWORKID
+HOST_PORT=33445
 CONTAINERHOSTIP=$(curl -s -4 http://checkip.amazonaws.com || printf "0.0.0.0")
-echo "Configuring bootnode on $CONTAINERHOSTIP">>logs/start.log
+log "Configuring bootnode on $CONTAINERHOSTIP"
 
-# Check required enviroment variables
-if [[ -z $CONTAINERHOSTIP ]]; then
-    echo "Could not determine the host IP">>logs/start.log
-    exit 1
-fi
-if [[ -z $GETHNETWORKID ]]; then
-    echo "Empty or invalid required config.json field: GethNetworkId">>logs/start.log
-    exit 1
-fi
-if [[ -z $AZURETENANT ]]; then
-    echo "Empty or invalid required config.json field: AzureTenant">>logs/start.log
-    exit 1
-fi
-if [[ -z $AZURESPNAPPID ]]; then
-    echo "Empty or invalid required config.json field: AzureSPNAppId">>logs/start.log
-    exit 1
-fi
-if [[ -z $AZURESUBSCRIPTIONID ]]; then
-    echo "Empty or invalid required config.json field: AzureSubscriptionId">>temp/logs/start.log
-    exit 1
-fi
-if [[ -z $AZURESPNPASSWORD ]]; then
-    echo "Empty or invalid required config.json field: AzureSPNPassword">>logs/start.log
-    exit 1
-fi
-if [[ -z $AZURETABLESTORAGENAME ]]; then
-    echo "Empty or invalid required config.json field: AzureResourceGroup">>temp/logs/start.log
-    exit 1
-fi
-if [[ -z $AZURETABLESTORAGESAS ]]; then
-    echo "Empty or invalid required config.json field: AzureResourceGroup">>temp/logs/start.log
-    exit 1
-fi
+# Ensure all required varaibles are set
+ensureVarSet $CONTAINERHOSTIP
+ensureVarSet $GETHNETWORKID
+ensureVarSet $AZURETENANT
+ensureVarSet $AZURESPNAPPID
+ensureVarSet $AZURESUBSCRIPTIONID
+ensureVarSet $AZURESPNPASSWORD
+ensureVarSet $AZURETABLESTORAGENAME
+ensureVarSet $AZURETABLESTORAGESAS
 
 # Login to Azure Storage with SPN
-echo "Logging into Azure">>temp/logs/start.log
-az login --service-principal -u $AZURESPNAPPID -p $AZURESPNPASSWORD --tenant $AZURETENANT >>temp/logs/azure.log
-az account set -s $AzureSubscriptionId >>temp/logs/azure.log
+log "Logging into Azure"
+az login --service-principal -u $AZURESPNAPPID -p $AZURESPNPASSWORD --tenant $AZURETENANT 2>&1 >> "logs/azure.log"
+az account set -s $AzureSubscriptionId 2>&1 >> "logs/azure.log"
 
 # Grab the bootnode public key
-local_bootnode=$(grep -i "listening" logs/bootnode.log | awk '{print $5}' | head -n 1)
+LOCAL_BOOTNODE=$(grep -i "listening" logs/bootnode.log | awk '{print $5}' | head -n 1)
+log "Using bootnode public key: $LOCAL_BOOTNODE"
 
-# Register bootnode with table storage
-echo "Checking whether bootnode registry '$azure_storage_table' exists">>logs/start.log
-table_args="--account-name $AZURETABLESTORAGENAME --sas-token $AZURETABLESASTOKEN"
-exists=$(az storage table exists --name $azure_storage_table $table_args)
+# Checking whether existing bootnode registry exists
+log "Checking whether bootnode registry '$AZURE_STORAGE_TABLE' exists"
+TABLE_ARGS="--account-name $AZURETABLESTORAGENAME --sas-token $AZURETABLESASTOKEN"
+exists=$(az storage table exists --name $AZURE_STORAGE_TABLE $TABLE_ARGS)
 
 if [[ $exists == *"false"* ]]; then
-    # Create table if it doesn't exist
-    echo "No existing registry, creating '$azure_storage_table">>logs/start.log
-    az storage table create --name $azure_storage_table $table_args>>logs/azure.log
+    # Registry doesn't exist, creating one
+    log "No existing bootnode registry, creating new one called '$AZURE_STORAGE_TABLE'"
+    az storage table create --name $AZURE_STORAGE_TABLE $TABLE_ARGS 2>&1 >> "logs/azure.log"
+else
+    # Registry already exists, no need to create one
+    log "Existing bootnode registry found"
 fi
 
-# Fetch current value
-echo "Getting existing bootnodes">>logs/start.log
-response=$(az storage entity show -t $azure_storage_table --partition-key $azure_partition_key --row-key $azure_row_key $table_args | grep -e "enode://" | awk '{ print $2 }')
-current_bootnodes=${response:1:-2}
+# Fetch any existing bootnodes in the registry
+log "Fetching existing bootnodes from registry"
+RESPONSE=$(az storage entity show -t $AZURE_STORAGE_TABLE --partition-key $AZURE_PARTITION_KEY --row-key $AZURE_ROW_KEY $TABLE_ARGS | grep -e "enode://" | awk '{ print $2 }')
+CURRENT_BOOTNODES=${RESPONSE:1:-2}
+log "Found: $CURRENT_BOOTNODES"
 
-# Update the values to include the local bootnode
-bootnode_enode="${local_bootnode/::/$CONTAINERHOSTIP}"
-bootnode_enode="${bootnode_enode//[}"
-bootnode_enode="${bootnode_enode//]}"
-internal_port=$(echo "$bootnode_enode" | awk -F: '{print $3}')
-bootnode_enode="${bootnode_enode/$internal_port/$external_port}"
+# Format the local bootnode address correctly with external ip
+LOCAL_ENODE="${LOCAL_BOOTNODE/::/$CONTAINERHOSTIP}"
+LOCAL_ENODE="${LOCAL_ENODE//[}"
+LOCAL_ENODE="${LOCAL_ENODE//]}"
+CONTAINER_PORT=$(echo "$LOCAL_ENODE" | awk -F: '{print $3}')
+LOCAL_ENODE="${LOCAL_ENODE/$CONTAINER_PORT/$HOST_PORT}"
+log "Formatted local bootnode: $LOCAL_ENODE"
 
-if [[ -z $current_bootnodes ]]; then
-    current_bootnodes=$bootnode_enode
-    echo "Registry is empty, initialising it with $current_bootnodes">>logs/start.log
-    az storage entity insert -t $azure_storage_table -e PartitionKey=$azure_partition_key RowKey=$azure_row_key Content=$current_bootnodes $table_args >>logs/azure.log
+# Update bootnode registry with local bootnode
+if [[ -z $CURRENT_BOOTNODES ]]; then
+    echo "Registry is currently empty, initialising it with $LOCAL_ENODE">>logs/start.log
+    az storage entity insert -t $AZURE_STORAGE_TABLE -e PartitionKey=$AZURE_PARTITION_KEY RowKey=$AZURE_ROW_KEY Content=$LOCAL_ENODE $TABLE_ARGS 2>&1 >> "logs/azure.log"
 else
-    current_bootnodes="$current_bootnodes,$bootnode_enode"
-    echo "Updating bootnode registry with $current_bootnodes">>logs/start.log
-    az storage entity replace -t $azure_storage_table -e PartitionKey=$azure_partition_key RowKey=$azure_row_key Content=$current_bootnodes $table_args >>logs/azure.log
+    UPDATED_BOOTNODES="$CURRENT_BOOTNODES,$LOCAL_ENODE"
+    echo "Updating bootnode registry with $UPDATED_BOOTNODES">>logs/start.log
+    az storage entity replace -t $AZURE_STORAGE_TABLE -e PartitionKey=$AZURE_PARTITION_KEY RowKey=$AZURE_ROW_KEY Content=$UPDATED_BOOTNODES $TABLE_ARGS 2>&1 >> "logs/azure.log"
 fi
 
 # Keep container alive
