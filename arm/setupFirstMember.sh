@@ -97,16 +97,15 @@ fi
 
 # Copy geth files to local geth directory
 log "Copying files to local Geth directory"
-cp /opt/quorum-deploy/node/genesis.json /opt/quorum-deploy/source/geth/
+cp /opt/quorum-deploy/node/geth/genesis.json /opt/quorum-deploy/source/geth/
 mkdir -p /opt/quorum-deploy/source/geth/keys
-cp /opt/quorum-deploy/node/key* /opt/quorum-deploy/source/geth/keys
+cp /opt/quorum-deploy/node/geth/key* /opt/quorum-deploy/source/geth/keys
 cp /opt/quorum-deploy/node/config.json /opt/quorum-deploy/source/geth/config.json
 cp /opt/quorum-deploy/node/config.json /opt/quorum-deploy/source/bootnode/config.json
 
 # Copy constellation files to local constellation directory
-log "Copying files to local Geth directory"
-cp /opt/quorum-deploy/node/node*.pub /opt/quorum-deploy/node/node*.key /opt/quorum-deploy/source/constellation/keys
-cp /opt/quorum-deploy/node/node.conf /opt/quorum-deploy/source/constellation/
+log "Copying files to local Constellation directory"
+cp /opt/quorum-deploy/node/constellation/node*.pub /opt/quorum-deploy/node/constellation/node*.key /opt/quorum-deploy/source/constellation/keys
 
 # Inject constellation config values
 log "Injecting constellation configuration values"

@@ -45,7 +45,15 @@ if [[ ! -d $NodeDir ]]; then
     log "None existent node directory ($NodeDir) provided"
     exit 1
 fi
-if [[ ! -f "$NodeDir/genesis.json" ]]; then
+if [[ ! -d "$NodeDir/geth" ]]; then
+    log "None existent geth sub-directory ($NodeDir) provided"
+    exit 1
+fi
+if [[ ! -d "$NodeDir/constellation" ]]; then
+    log "None existent constellation sub-directory ($NodeDir) provided"
+    exit 1
+fi
+if [[ ! -f "$NodeDir/geth/genesis.json" ]]; then
     log "No genesis.json file provided"
     exit 1
 fi
