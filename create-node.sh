@@ -1,4 +1,5 @@
 #!/bin/bash
+echo
 echo "///////////////////////////"
 echo " Create Quorum Keys Script"
 echo "///////////////////////////"
@@ -42,6 +43,7 @@ else
     twokeys=false
 fi
 
+echo "Generating your keys, please be paitent"
 containerId=$(docker run -td agriessel/quorum)
 
 if [[ $twokeys == true ]]; then
@@ -60,7 +62,7 @@ if [[ $twokeys == true ]]; then
                                         yes "" | constellation-enclave-keygen node > /dev/null 2>&1 && \
                                         yes "" | constellation-enclave-keygen nodea > /dev/null 2>&1 && \
                                         echo "PRI_ADD=$primaryadd" > accounts && \
-                                        echo "SEC_ADD=$secondaryadd" >> accounts'
+                                        echo "SEC_ADD=$secondaryadd" >> accounts' 2>&1 /dev/null
     docker cp "$containerId":key1 $NODE_DIR
     docker cp "$containerId":key2 $NODE_DIR
     docker cp "$containerId":node.pub $NODE_DIR
@@ -76,7 +78,7 @@ else
                                         primaryadd=${primaryadd:1:-1} && \
                                         cp $primarykey key1 && \
                                         yes "" | constellation-enclave-keygen node > /dev/null 2>&1 && \
-                                        echo "PRI_ADD=$primaryadd" > accounts'
+                                        echo "PRI_ADD=$primaryadd" > accounts' 2>&1 /dev/null
     docker cp "$containerId":key1 "$NODE_DIR"
     docker cp "$containerId":node.pub $NODE_DIR
     docker cp "$containerId":node.key $NODE_DIR
@@ -103,6 +105,8 @@ else
     IsBlockMaker=false
 fi
 
+echo "Generating your deployment config"
+
 echo '{
         "IsVoter": '"$IsVoter"',
         "VoterAccountAddress": '"$VoterAddress"',
@@ -116,3 +120,58 @@ echo '{
      }' > "$NODE_DIR/config.json"
 
 rm accounts
+
+buildGenesis=$(promptUser "Would you like to build a new genesis.json file?")
+
+if [[ $buildGenesis == "y" ]]; then
+    toolsInstalled=$(npm list -g | grep quorum-genesis)
+    if [[ -z $toolsInstalled ]]; then
+        echo "Tools not installed, hang tight whilst I go get them"
+        git clone --quiet https://github.com/davebryson/quorum-genesis &> /dev/null
+        npm install -g quorum-genesis 2>&1 > /dev/null
+        rm -rf quorum-genesis
+    fi
+    echo "I've added your addresses to the genesis config, let's add any other members"
+    voters=()
+    if [[ $voter == "y" ]]; then
+        voters+=("0x$VoterAddress")
+    fi
+    anotherVoter=$(promptUser "Do you want to add more voters to the network?")
+    while ([[ $anotherVoter == "y" ]]); do
+        echo "Enter voter address (with 0x prefix):"
+        read v
+        voters+=("$v")
+        anotherVoter=$(promptUser "Do you want to add more voters to the network?")
+    done
+    blockmakers=()
+    if [[ $blockmaker == "y" ]]; then
+        blockmakers+=("0x$BlockMakerAddress")
+    fi
+    anotherBlockMaker=$(promptUser "Do you want to add more blockmakers to the network?")
+    while ([[ $anotherBlockMaker == "y" ]]); do
+        echo "Enter blockmaker address (with 0x prefix):"
+        read b
+        blockmakers+=("$b")
+        anotherBlockMaker=$(promptUser "Do you want to add more blockmakers to the network?")
+    done
+    config='{"threshold":'"${#voters[@]}"',"voters":['
+    for index in ${!voters[@]}; do
+        config="$config\"${voters[index]}\","
+    done
+    config="${config::-1}],\"makers\":["
+    for index in ${!blockmakers[@]}; do
+        config="$config\"${blockmakers[index]}\","
+    done
+    config="${config::-1}]}"
+    echo $config > "quorum-config.json"
+    quorum-genesis
+    cp quorum-genesis.json "$NODE_DIR/genesis.json"
+fi
+
+rm quorum-genesis.json
+rm quorum-config.json
+
+echo
+echo "All done, your node files are in $NODE_DIR"
+echo "........................................."
+echo "This script uses this awesome project https://github.com/davebryson/quorum-genesis by Dave Bryson, thanks Dave!"
