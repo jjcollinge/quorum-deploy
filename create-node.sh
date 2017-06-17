@@ -136,23 +136,23 @@ if [[ $buildGenesis == "y" ]]; then
     if [[ $voter == "y" ]]; then
         voters+=("0x$VoterAddress")
     fi
-    anotherVoter=$(promptUser "Do you want to add more voters to the network?")
+    anotherVoter=$(promptUser "Do you want to add more voters to the config?")
     while ([[ $anotherVoter == "y" ]]); do
         echo "Enter voter address (with 0x prefix):"
         read v
         voters+=("$v")
-        anotherVoter=$(promptUser "Do you want to add more voters to the network?")
+        anotherVoter=$(promptUser "Do you want to add more voters to the config?")
     done
     blockmakers=()
     if [[ $blockmaker == "y" ]]; then
         blockmakers+=("0x$BlockMakerAddress")
     fi
-    anotherBlockMaker=$(promptUser "Do you want to add more blockmakers to the network?")
+    anotherBlockMaker=$(promptUser "Do you want to add more blockmakers to the config?")
     while ([[ $anotherBlockMaker == "y" ]]); do
         echo "Enter blockmaker address (with 0x prefix):"
         read b
         blockmakers+=("$b")
-        anotherBlockMaker=$(promptUser "Do you want to add more blockmakers to the network?")
+        anotherBlockMaker=$(promptUser "Do you want to add more blockmakers to the config?")
     done
     config='{"threshold":'"${#voters[@]}"',"voters":['
     for index in ${!voters[@]}; do
@@ -173,5 +173,8 @@ rm quorum-config.json
 
 echo
 echo "All done, your node files are in $NODE_DIR"
+echo "Go complete the config.json!"
 echo "........................................."
-echo "This script uses this awesome project https://github.com/davebryson/quorum-genesis by Dave Bryson, thanks Dave!"
+echo "This script uses these awesome project;"
+echo "https://github.com/davebryson/quorum-genesis by Dave Bryson, thanks Dave!"
+echo "https://github.com/agriessel/quorum-docker by Alex OpenSource, thanks Alex!"

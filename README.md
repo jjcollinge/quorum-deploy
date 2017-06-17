@@ -24,7 +24,9 @@ Other than the above requirements, there is no installation process for quorum-d
     ./create-node.sh node/
 ```
 
-3. Run the deployment script with the required arguments to kick of your Azure deployment.
+3. Go add your Azure subscription details to the `config.json` file
+
+4. Run the deployment script with the required arguments to kick of your Azure deployment.
 
 ```
     ./deploy-node.sh
@@ -36,4 +38,4 @@ Other than the above requirements, there is no installation process for quorum-d
   -p parameterfile     specify an arm parameters file
   -d node     specify a local node directory
 ```
-
+5. Grab your deployments public ip address and go explore
