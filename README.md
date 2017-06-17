@@ -26,7 +26,7 @@ Other than the above requirements, there is no installation process for quorum-d
 3. Run the deployment script with the required arguments to kick of your Azure deployment.
 
 ```
-    ./deploy.sh
+    ./deploy-node.sh
 
     usage:  [-n resourcegroup ] [-l location ] [-t templatefile ] [-p parameterfile ] [-d node ]
   -n resourcegroup     specify an azure resource group
