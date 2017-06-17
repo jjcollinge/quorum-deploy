@@ -5,10 +5,11 @@ Quorum-deploy aims to provide a simple way to stand up a consortium quorum netwo
 
 ## Requirements
 
-* Linux
-* Docker
-* [Azure CLI 2.0](https://docs.microsoft.com/en-gb/cli/azure/install-azure-cli)
-* Azure subscription (with owner permissions)
+* linux
+* docker
+* [azure CLI 2.0](https://docs.microsoft.com/en-gb/cli/azure/install-azure-cli)
+* node and npm
+* azure subscription (with owner permissions)
 
 ## Installation
 Other than the above requirements, there is no installation process for quorum-deploy. Just clone this repos to your local machine and follow the instructions in the *Usage* section of this document.
