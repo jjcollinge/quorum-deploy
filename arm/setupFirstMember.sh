@@ -77,10 +77,10 @@ AzureTableStorageName=$AzureBlobStorageName
 az storage table create -n networkbootnodes 2>&1 >> $LOG_FILE
 dateVar=$(TZ=UTC date +"%Y-%m-%dT%H:%MZ" -d "+5 days")
 log "Generating SAS token for bootnode registry table"
-AzureTableStorageSas=$(az storage table generate-sas --name networkbootnodes --account-name $AzureBlobStorageName --permissions raud --expiry ${dateVar})
+AzureTableStorageSas=$(az storage table generate-sas --name networkbootnodes --account-name $AzureTableStorageName --permissions raud --expiry ${dateVar})
 
 # Add Azure storage table details into node config file
-log "Adding azure storage table access details into node's config file"
+log "Adding azure storage table access details into node's config file if not present"
 if ! grep -q "AzureTableStorageName" /opt/quorum-deploy/node/config.json; then
 python << END
 import json
@@ -95,13 +95,18 @@ with open(config_file, 'w') as json_file:
 END
 fi
 
-# Copy files to local geth source
-log "Copying files to local Geth source"
+# Copy geth files to local geth directory
+log "Copying files to local Geth directory"
 cp /opt/quorum-deploy/node/genesis.json /opt/quorum-deploy/source/geth/
 mkdir -p /opt/quorum-deploy/source/geth/keys
 cp /opt/quorum-deploy/node/key* /opt/quorum-deploy/source/geth/keys
 cp /opt/quorum-deploy/node/config.json /opt/quorum-deploy/source/geth/config.json
 cp /opt/quorum-deploy/node/config.json /opt/quorum-deploy/source/bootnode/config.json
+
+# Copy constellation files to local constellation directory
+log "Copying files to local Geth directory"
+cp /opt/quorum-deploy/node/node*.pub /opt/quorum-deploy/node/node*.key /opt/quorum-deploy/source/constellation/keys
+cp /opt/quorum-deploy/node/node.conf /opt/quorum-deploy/source/constellation/
 
 # Inject constellation config values
 log "Injecting constellation configuration values"
