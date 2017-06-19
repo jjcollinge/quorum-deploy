@@ -44,4 +44,5 @@ Other than the above requirements, there is no installation process for quorum-d
   -d node     specify a local node directory
 ```
 6. Grab your deployments public ip address and go explore your deployment
+
 6a. Cakeshop should be available at http://fqdn.com:8080/cakeshop
