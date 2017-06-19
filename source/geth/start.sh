@@ -18,7 +18,9 @@ function log ()
 function ensureVarSet ()
 {
     if [[ -z $1 ]]; then
-        log "The environment variable ${!1@} is not set, this is required!"
+        varName=$1
+        eval "$varName=$1"
+        log "The environment variable ${!varName} is not set, this is required!"
         exit 1
     fi
 }
