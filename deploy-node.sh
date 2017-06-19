@@ -60,7 +60,7 @@ fi
 
 # Create zip of files
 log "Creating zip archive of node directory $NodeDir"
-zip -r node.zip $NodeDir
+zip -r node.zip $NodeDir/*
 
 # Getting Azure details from node config file
 log "Grabbing Azure details from config file"
