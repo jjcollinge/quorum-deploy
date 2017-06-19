@@ -18,9 +18,7 @@ function log ()
 function ensureVarSet ()
 {
     if [[ -z $1 ]]; then
-        varName=$1
-        eval "$varName=$1"
-        log "The environment variable ${!varName} is not set, this is required!"
+        log "The environment variable $2 is not set, this is required!"
         exit 1
     fi
 }
@@ -48,14 +46,14 @@ CONTAINERHOSTIP=$(curl -s -4 http://checkip.amazonaws.com || printf "0.0.0.0")
 log "Configuring bootnode on $CONTAINERHOSTIP"
 
 # Ensure all required varaibles are set
-ensureVarSet $CONTAINERHOSTIP
-ensureVarSet $GETHNETWORKID
-ensureVarSet $AZURETENANT
-ensureVarSet $AZURESPNAPPID
-ensureVarSet $AZURESUBSCRIPTIONID
-ensureVarSet $AZURESPNPASSWORD
-ensureVarSet $AZURETABLESTORAGENAME
-ensureVarSet $AZURETABLESTORAGESAS
+ensureVarSet $CONTAINERHOSTIP ${!CONTAINERHOSTIP@}
+ensureVarSet $GETHNETWORKID ${!GETHNETWORKID@}
+ensureVarSet $AZURETENANT ${!AZURETENANT@}
+ensureVarSet $AZURESPNAPPID ${!AZURESPNAPPID@}
+ensureVarSet $AZURESPNPASSWORD ${!AZURESPNPASSWORD@}
+ensureVarSet $AZURESUBSCRIPTIONID ${!AZURESUBSCRIPTIONID@}
+ensureVarSet $AZURETABLESTORAGENAME ${!AZURETABLESTORAGENAME@}
+ensureVarSet $AZURETABLESTORAGESAS ${!AZURETABLESTORAGESAS@}
 
 # Login to Azure Storage with SPN
 log "Logging into Azure"

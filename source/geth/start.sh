@@ -18,9 +18,7 @@ function log ()
 function ensureVarSet ()
 {
     if [[ -z $1 ]]; then
-        varName=$1
-        eval "$varName=$1"
-        log "The environment variable ${!varName} is not set, this is required!"
+        log "The environment variable $2 is not set, this is required!"
         exit 1
     fi
 }
@@ -45,13 +43,13 @@ BLOB_FILE="files.zip"
 KEYSTORE="/opt/quorum/data/keystore"
 
 # Ensure all required varaibles are set
-ensureVarSet $GETHNETWORKID
-ensureVarSet $AZURETENANT
-ensureVarSet $AZURESPNAPPID
-ensureVarSet $AZURESPNPASSWORD
-ensureVarSet $AZURESUBSCRIPTIONID
-ensureVarSet $AZURETABLESTORAGENAME
-ensureVarSet $AZURETABLESTORAGESAS
+ensureVarSet $GETHNETWORKID ${!GETHNETWORKID@}
+ensureVarSet $AZURETENANT ${!AZURETENANT@}
+ensureVarSet $AZURESPNAPPID ${!AZURESPNAPPID@}
+ensureVarSet $AZURESPNPASSWORD ${!AZURESPNPASSWORD@}
+ensureVarSet $AZURESUBSCRIPTIONID ${!AZURESUBSCRIPTIONID@}
+ensureVarSet $AZURETABLESTORAGENAME ${!AZURETABLESTORAGENAME@}
+ensureVarSet $AZURETABLESTORAGESAS ${!AZURETABLESTORAGESAS@}
 
 # Login to Azure Storage with SPN
 log "Logging into Azure"
