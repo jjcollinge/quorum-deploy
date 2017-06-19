@@ -70,11 +70,20 @@ export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-stri
 
 # Grab the bootnode public key
 LOCAL_BOOTNODE=$(grep -i "listening" logs/bootnode.log | awk '{print $5}' | head -n 1)
+# If bootnode isn't up, try restarting
 if [[ -z $LOCAL_BOOTNODE ]]; then
     BIND_IN_USE=$(grep -i "in use" logs/bootnode.log | wc -l)
     if [[ $BIND_IN_USE -ge 1 ]]; then
-        log "Bootnode port already bound, cannot start another local bootnode"
-        exit 1
+        log "Trying to kill existing process"
+        kill $(ps aux | grep "bootnode*" | awk '{print $2}')
+        log "Starting new process"
+        nohup bootnode -genkey bootnode.key -addr "0.0.0.0:33445" 2>&1 > "logs/bootnode.log" &
+        sleep 6
+        LOCAL_BOOTNODE=$(grep -i "listening" logs/bootnode.log | awk '{print $5}' | head -n 1)
+        if [[ -z $LOCAL_BOOTNODE ]]; then
+            log "Something isn't right, I can't start the bootnode process"
+            exit 1
+        fi
     fi
 fi
 
