@@ -52,7 +52,7 @@ fi
 # Clone the source from remote repository
 log "Cloning source code repository"
 git clone https://github.com/jjcollinge/quorum-deploy /opt/quorum-deploy
-cd quorum-deploy/source/
+cd /opt/quorum-deploy/source/
 
 # Logging into Azure
 log "Logging into Azure"

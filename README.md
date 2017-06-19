@@ -11,6 +11,9 @@ Quorum-deploy aims to provide a simple way to stand up a consortium quorum netwo
 * node and npm
 * azure subscription (with owner permissions)
 
+## Disclaimer
+This project is work in progress and is dependent on a number of immature and untested technologies. At any point in time the build may be broken, not working properly or incomplete. Please only use this project as a reference or for your own experimentation.
+
 ## Installation
 Other than the above requirements, there is no installation process for quorum-deploy. Just clone this repos to your local machine and follow the instructions in the *Usage* section of this document.
 

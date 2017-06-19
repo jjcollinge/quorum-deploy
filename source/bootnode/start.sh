@@ -24,7 +24,8 @@ function ensureVarSet ()
 }
 
 # Start a local bootnode
-nohup bootnode -genkey bootnode.key -addr "0.0.0.0:33445" 2>&1 > "logs/bootnode.log" &
+touch "logs/bootnode.log"
+nohup bootnode -genkey bootnode.key -addr "0.0.0.0:33445" > "logs/bootnode.log" 2>&1 &
 
 # Wait for bootnode to start listening
 log "Waiting for bootnode to start..."
@@ -69,17 +70,18 @@ AzureResourceGroup=$(az group list | grep $suffix | grep "name" | awk '{ print $
 export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string --name $AZURETABLESTORAGENAME --resource-group $AzureResourceGroup | grep "connectionString" | awk '{ print $2 }')
 
 # Grab the bootnode public key
-LOCAL_BOOTNODE=$(grep -i "listening" logs/bootnode.log | awk '{print $5}' | head -n 1)
+LOCAL_BOOTNODE=$(grep -i "listening" "logs/bootnode.log" | awk '{print $5}' | head -n 1)
 # If bootnode isn't up, try restarting
 if [[ -z $LOCAL_BOOTNODE ]]; then
+    log "Couldn't get local bootnode address"
     BIND_IN_USE=$(grep -i "in use" logs/bootnode.log | wc -l)
     if [[ $BIND_IN_USE -ge 1 ]]; then
         log "Trying to kill existing process"
         kill $(ps aux | grep "bootnode*" | awk '{print $2}')
         log "Starting new process"
-        nohup bootnode -genkey bootnode.key -addr "0.0.0.0:33445" 2>&1 > "logs/bootnode.log" &
+        nohup bootnode -genkey bootnode.key -addr "0.0.0.0:33445" > "logs/bootnode.log" 2>&1 &
         sleep 6
-        LOCAL_BOOTNODE=$(grep -i "listening" logs/bootnode.log | awk '{print $5}' | head -n 1)
+        LOCAL_BOOTNODE=$(grep -i "listening" "logs/bootnode.log" | awk '{print $5}' | head -n 1)
         if [[ -z $LOCAL_BOOTNODE ]]; then
             log "Something isn't right, I can't start the bootnode process"
             exit 1
@@ -119,11 +121,11 @@ log "Formatted local bootnode: $LOCAL_ENODE"
 
 # Update bootnode registry with local bootnode
 if [[ -z $CURRENT_BOOTNODES ]]; then
-    echo "Registry is currently empty, initialising it with $LOCAL_ENODE">>logs/start.log
+    log "Registry is currently empty, initialising it with $LOCAL_ENODE"
     az storage entity insert -t $AZURE_STORAGE_TABLE -e PartitionKey=$AZURE_PARTITION_KEY RowKey=$AZURE_ROW_KEY Content=$LOCAL_ENODE $TABLE_ARGS 2>&1 >> "logs/azure.log"
 else
     UPDATED_BOOTNODES="$CURRENT_BOOTNODES,$LOCAL_ENODE"
-    echo "Updating bootnode registry with $UPDATED_BOOTNODES">>logs/start.log
+    log "Updating bootnode registry with $UPDATED_BOOTNODES"
     az storage entity replace -t $AZURE_STORAGE_TABLE -e PartitionKey=$AZURE_PARTITION_KEY RowKey=$AZURE_ROW_KEY Content=$UPDATED_BOOTNODES $TABLE_ARGS 2>&1 >> "logs/azure.log"
 fi
 
