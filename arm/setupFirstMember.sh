@@ -66,6 +66,7 @@ export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-stri
     --name $AzureBlobStorageName \
     --resource-group $AzureResourceGroup \
     | grep "connectionString" | awk '{ print $2 }')
+
 log "Downloading node configuration archive from blob"
 az storage blob download -c node -n files.zip -f /opt/quorum-deploy/node.zip 2>&1 >> $LOG_FILE
 log "Expanding archive"
@@ -90,7 +91,7 @@ config_file = '/opt/quorum-deploy/node/config.json'
 with open(config_file, 'r') as json_file:
   json_decoded = json.load(json_file)
 json_decoded["AzureTableStorageName"] = "$AzureTableStorageName"
-json_decoded["AzureTableStorageSas"] = $AzureTableStorageSas
+json_decoded["AzureTableStorageSas"] = "$AzureTableStorageSas"
 with open(config_file, 'w') as json_file:
   json.dump(json_decoded, json_file, indent=4, separators=(',', ': '))
 END

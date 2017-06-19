@@ -69,18 +69,15 @@ AzureResourceGroup=$(az group list | grep $suffix | grep "name" | awk '{ print $
 export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string --name $AZURETABLESTORAGENAME --resource-group $AzureResourceGroup | grep "connectionString" | awk '{ print $2 }')
 
 # Grab the bootnode public key
-attempts=0
 LOCAL_BOOTNODE=$(grep -i "listening" logs/bootnode.log | awk '{print $5}' | head -n 1)
-while ([[ -z $LOCAL_BOOTNODE ]]); do
-    if [[ $attempts -ge 5 ]]; then
-        log "Couldn't start local bootnode"
+if [[ -z $LOCAL_BOOTNODE ]]; then
+    BIND_IN_USE=$(grep -i "in use" logs/bootnode.log | wc -l)
+    if [[ $BIND_IN_USE -ge 1 ]]; then
+        log "Bootnode port already bound, cannot start another local bootnode"
         exit 1
     fi
-    ((attempts++))
-    nohup bootnode -genkey bootnode.key -addr "0.0.0.0:33445" 2>&1 > "logs/bootnode.log" &
-    sleep 6
-    LOCAL_BOOTNODE=$(grep -i "listening" logs/bootnode.log | awk '{print $5}' | head -n 1)
-done
+fi
+
 log "Using bootnode public key: $LOCAL_BOOTNODE"
 
 # Checking whether existing bootnode registry exists
