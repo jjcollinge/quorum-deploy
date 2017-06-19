@@ -32,7 +32,7 @@ services:
   cakeshops-svc:
     image: jpmc/cakeshop
     environment:
-      -  JAVA_OPTS="-Dgeth.url=http\://localhost\:8545 -Dgeth.node.port=30301 -Dgeth.networkid=__GethNetworkId__"
+      -  JAVA_OPTS="-Dgeth.url=http\://0.0.0.0\:8545 -Dgeth.node.port=30301 -Dgeth.networkid=__GethNetworkId__ -Dgeth.auto.start=false -Dgeth.auto.stop=false"
     volumes:
       - ./data:/opt/cakeshop/data
     ports:

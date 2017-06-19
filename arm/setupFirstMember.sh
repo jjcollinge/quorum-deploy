@@ -51,7 +51,7 @@ fi
 
 # Clone the source from remote repository
 log "Cloning source code repository"
-git clone https://github.com/jjcollinge/quorum-deploy /opt/quorum-delpoy
+git clone https://github.com/jjcollinge/quorum-deploy /opt/quorum-deploy
 cd quorum-deploy/source/
 
 # Logging into Azure
@@ -77,7 +77,7 @@ AzureTableStorageName=$AzureBlobStorageName
 az storage table create -n networkbootnodes 2>&1 >> $LOG_FILE
 dateVar=$(TZ=UTC date +"%Y-%m-%dT%H:%MZ" -d "+5 days")
 log "Generating SAS token for bootnode registry table"
-AzureTableStorageSas=$(az storage table generate-sas --name networkbootnodes --account-name $AzureTableStorageName --permissions raud --expiry ${dateVar})
+AzureTableStorageSas=$(az storage table generate-sas --name networkbootnodes --account-name $AzureTableStorageName --permissions raud --expiry ${dateVar} --output tsv)
 
 # Add Azure storage table details into node config file
 log "Adding azure storage table access details into node's config file if not present"

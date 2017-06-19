@@ -86,7 +86,7 @@ if [[ $isBlockmaker == "y" ]]; then
             cp $blockmakerKeyFile "$NODE_DIR/geth/key1"
         fi
         # Extract blockmaker address from keyfile
-        BlockMakerAddress=$(cat $voterKeyFile | awk -F ',' '{print $1}' | awk -F ':' '{print $2}')
+        BlockMakerAddress=$(cat $blockmakerKeyFile | awk -F ',' '{print $1}' | awk -F ':' '{print $2}')
         BlockMakerAddress=${BlockMakerAddress:1:-1}
     else
         # Get a passphrase to secure the generated keyfile
@@ -187,9 +187,9 @@ fi
 echo "Generating your deployment config"
 echo '{
         "IsVoter": '"$IsVoterValue"',
-        "VoterAccountAddress": '"$VoterAddress"',
+        "VoterAccountAddress": "'"0x$VoterAddress"'",
         "IsBlockMaker": '"$IsBlockMakerValue"',
-        "BlockMakerAccountAddress": '"$BlockMakerAddress"',
+        "BlockMakerAccountAddress": "'"0x$BlockMakerAddress"'",
         "GethNetworkId": 4444,
         "AzureSubscriptionId": "",
         "AzureTenant": "",
@@ -264,6 +264,7 @@ echo
 echo "ATTENTION: You must fill in the missing values in the config.json file"
 echo
 echo "........................................."
+echo
 echo "This script uses these awesome project;"
 echo "https://github.com/davebryson/quorum-genesis by Dave Bryson, thanks Dave!"
 echo "https://github.com/agriessel/quorum-docker by Alex OpenSource, thanks Alex!"

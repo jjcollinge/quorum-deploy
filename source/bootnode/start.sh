@@ -5,7 +5,7 @@ TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 
 # Create log file if doesn't already exist
 if [[ ! -f $LOG_FILE ]]; then
-    LOG_DIR=dirname $LOG_FILE
+    LOG_DIR=$(dirname $LOG_FILE)
     mkdir -p $LOG_DIR
     touch $LOG_FILE
 fi
@@ -18,7 +18,7 @@ function log ()
 function ensureVarSet ()
 {
     if [[ -z $1 ]]; then
-        log "The environment variable $1 is not set, this is required!"
+        log "The environment variable ${!1@} is not set, this is required!"
         exit 1
     fi
 }
@@ -58,21 +58,40 @@ ensureVarSet $AZURETABLESTORAGESAS
 # Login to Azure Storage with SPN
 log "Logging into Azure"
 az login --service-principal -u $AZURESPNAPPID -p $AZURESPNPASSWORD --tenant $AZURETENANT 2>&1 >> "logs/azure.log"
-az account set -s $AzureSubscriptionId 2>&1 >> "logs/azure.log"
+az account set -s $AZURESUBSCRIPTIONID 2>&1 >> "logs/azure.log"
+
+# Set storage account connection details
+# ideally I'll remove this to use SAS but
+# currently there is a bug with checking
+# whether table exists
+suffix=${AZURETABLESTORAGENAME#storage}
+AzureResourceGroup=$(az group list | grep $suffix | grep "name" | awk '{ print $2 }' | tr -cd '[[:alnum:]]._-' )
+export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string --name $AZURETABLESTORAGENAME --resource-group $AzureResourceGroup | grep "connectionString" | awk '{ print $2 }')
 
 # Grab the bootnode public key
+attempts=0
 LOCAL_BOOTNODE=$(grep -i "listening" logs/bootnode.log | awk '{print $5}' | head -n 1)
+while ([[ -z $LOCAL_BOOTNODE ]]); do
+    if [[ $attempts -ge 5 ]]; then
+        log "Couldn't start local bootnode"
+        exit 1
+    fi
+    ((attempts++))
+    nohup bootnode -genkey bootnode.key -addr "0.0.0.0:33445" 2>&1 > "logs/bootnode.log" &
+    sleep 6
+    LOCAL_BOOTNODE=$(grep -i "listening" logs/bootnode.log | awk '{print $5}' | head -n 1)
+done
 log "Using bootnode public key: $LOCAL_BOOTNODE"
 
 # Checking whether existing bootnode registry exists
 log "Checking whether bootnode registry '$AZURE_STORAGE_TABLE' exists"
-TABLE_ARGS="--account-name $AZURETABLESTORAGENAME --sas-token $AZURETABLESASTOKEN"
+TABLE_ARGS="--account-name $AZURETABLESTORAGENAME --sas-token \"$AZURETABLESTORAGESAS\""
 exists=$(az storage table exists --name $AZURE_STORAGE_TABLE $TABLE_ARGS)
 
 if [[ $exists == *"false"* ]]; then
     # Registry doesn't exist, creating one
     log "No existing bootnode registry, creating new one called '$AZURE_STORAGE_TABLE'"
-    az storage table create --name $AZURE_STORAGE_TABLE $TABLE_ARGS 2>&1 >> "logs/azure.log"
+    az storage table create --name $AZURE_STORAGE_TABLE 2>&1 >> "logs/azure.log"
 else
     # Registry already exists, no need to create one
     log "Existing bootnode registry found"

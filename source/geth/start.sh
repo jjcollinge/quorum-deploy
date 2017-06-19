@@ -5,7 +5,7 @@ TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 
 # Create log file if doesn't already exist
 if [[ ! -f $LOG_FILE ]]; then
-    LOG_DIR=dirname $LOG_FILE
+    LOG_DIR=$(dirname $LOG_FILE)
     mkdir -p $LOG_DIR
     touch $LOG_FILE
 fi
@@ -18,7 +18,7 @@ function log ()
 function ensureVarSet ()
 {
     if [[ -z $1 ]]; then
-        log "The environment variable $1 is not set, this is required!"
+        log "The environment variable ${!1@} is not set, this is required!"
         exit 1
     fi
 }
@@ -40,7 +40,7 @@ AZURE_ROW_KEY=$GETHNETWORKID
 BOOTNODE_PORT=33445
 BLOB_CONTAINER="node"
 BLOB_FILE="files.zip"
-KEYSTORE="/opt/quorum/data/KEYSTORE"
+KEYSTORE="/opt/quorum/data/keystore"
 
 # Ensure all required varaibles are set
 ensureVarSet $GETHNETWORKID
@@ -55,6 +55,14 @@ ensureVarSet $AZURETABLESTORAGESAS
 log "Logging into Azure"
 az login --service-principal -u $AZURESPNAPPID -p $AZURESPNPASSWORD --tenant $AZURETENANT 2>&1 >> $LOG_FILE
 az account set -s $AZURESUBSCRIPTIONID 2>&1 >> $LOG_FILE
+
+# Set storage account connection details
+# ideally I'll remove this to use SAS but
+# currently there is a bug with checking
+# whether table exists
+suffix=${AZURETABLESTORAGENAME#storage}
+AzureResourceGroup=$(az group list | grep $suffix | grep "name" | awk '{ print $2 }' | tr -cd '[[:alnum:]]._-' )
+export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string --name $AZURETABLESTORAGENAME --resource-group $AzureResourceGroup | grep "connectionString" | awk '{ print $2 }')
 
 # Initialise Geth client
 log "Initialising geth"
