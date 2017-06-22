@@ -1,26 +1,33 @@
 #!/bin/bash
-echo
-echo "///////////////////////////"
-echo " Create Quorum Keys Script"
-echo "///////////////////////////"
-echo
-echo "Ok let's begin"
 
+# This script is here to help you create
+# a node directory with configuration
+# suitable for deploying using the 
+# deploy-node.sh script.
+
+echo
+echo "///////////////////////////"
+echo "    Quorum Create Node"
+echo "///////////////////////////"
+echo
+echo "Ok let's begin..."
+
+# Check the provided node directory exists
 if [[ -z $1 ]]; then
     echo "Usage: you must provide your output node directory as an argument."
     exit 1
 fi
-
+if [[ ! -d $1 ]]; then
+    echo "Your output key directory $NODE_DIR does not exist, I'll create it for you."
+    mkdir -p $1
+fi
 NODE_DIR=$1
 
-if [[ ! -d $1 ]]; then
-    echo "Your output key directory $NODE_DIR does not exist"
-    exit 1
-fi
-
+# Create expected directory structure
 mkdir -p "$NODE_DIR/geth"
 mkdir -p "$NODE_DIR/constellation"
 
+# Function definitions
 function askUserYesOrNoQuestion() {
     prompt=$1
     echo "$prompt [y/n]" >&2
@@ -40,7 +47,7 @@ function copyIfExists() {
     fi
 }
 
-# Determine if the node will be able to vote
+# Ask if the node will be able to vote
 isVoter=$(askUserYesOrNoQuestion "Will this account be able to vote?")
 if [[ $isVoter == "y" ]]; then
     # Does an existing voter keyfile exist
@@ -65,7 +72,7 @@ if [[ $isVoter == "y" ]]; then
     fi
 fi
 
-# Determine if the node will be able to make blocks
+# Ask if the node will be able to make blocks
 isBlockmaker=$(askUserYesOrNoQuestion "Will this account be able to make blocks?")
 if [[ $isBlockmaker == "y" ]]; then
     # Does an existing blockmaker keyfile exist
@@ -95,7 +102,7 @@ if [[ $isBlockmaker == "y" ]]; then
     fi
 fi
 
-# Determine whether constellation files already exist
+# Ask whether constellation files already exist
 existingConstellationKeys=$(askUserYesOrNoQuestion "Do you have existing constellation files?")
 if [[ $existingConstellationKeys == "y" ]]; then
     # Copy constellation files to node directory
@@ -106,11 +113,12 @@ else
     echo "Ok, I'll generate some default constellation files for you"
 fi
 
+# If we require any keys generating
 if [[ $existingVoterKey == "n" || $existingBlockmakerKey == "n" || $existingConstellationKeys == "n" ]]; then
     echo "Generating your keys, please be paitent"
     # Start quorum container
     containerId=$(docker run -td agriessel/quorum)
-    # Build bash command
+    # Build bash command to generate the keys
     bashcmd=''
     if [[ $existingVoterKey == "n" ]]; then
         # Add voter key generation logic
@@ -157,7 +165,9 @@ if [[ $existingVoterKey == "n" || $existingBlockmakerKey == "n" || $existingCons
                      yes "" | constellation-enclave-keygen nodea > /dev/null 2>&1 '
         fi
     fi
+    # Execute the bash command inside the container
     docker exec "$containerId" bash -c "$bashcmd" 2>&1 > /dev/null
+    # Copy any 'generated' files out of the container and into the provided node directory
     copyIfExists key1 "$NODE_DIR/geth"
     copyIfExists key2 "$NODE_DIR/geth"
     copyIfExists node.pub "$NODE_DIR/constellation"
@@ -165,19 +175,19 @@ if [[ $existingVoterKey == "n" || $existingBlockmakerKey == "n" || $existingCons
     copyIfExists nodea.pub "$NODE_DIR/constellation"
     copyIfExists nodea.key "$NODE_DIR/constellation"
     copyIfExists accounts .
+    # Returning parameters from container via source file
     source accounts
     VoterAddress=$VOTER_ADD
     BlockMakerAddress=$BLOCKMAKER_ADD
     rm accounts
 fi
 
-# Get values for config file
+# Create variables suitable to be injected into JSON configuration
 if [[ $isVoter == "y" ]]; then
     IsVoterValue=true
 else
     IsVoterValue=false
 fi
-
 if [[ $isBlockmaker == "y" ]]; then
     IsBlockMakerValue=true
 else
@@ -196,8 +206,9 @@ echo '{
         "AzureSPNAppId": "",
         "AzureSPNPassword": ""
      }' > "$NODE_DIR/config.json"
-
 echo "Done config, let's start on the genesis.json"
+
+# Ask whether we need to generate a genesis.json file or not
 existingGenesisFile=$(askUserYesOrNoQuestion "Do you have an existing genesis file?")
 if [[ $existingGenesisFile == "y" ]]; then
     echo "Please enter the path to the genesis file"
@@ -212,16 +223,16 @@ else
     if [[ $buildGenesis == "y" ]]; then
         toolsInstalled=$(npm list -g | grep quorum-genesis)
         if [[ -z $toolsInstalled ]]; then
-            echo "Tools not installed, hang tight whilst I go get them"
+            echo "Required tools are not installed, hang tight whilst I go get them"
             git clone --quiet https://github.com/davebryson/quorum-genesis &> /dev/null
             npm install -g quorum-genesis 2>&1 > /dev/null
             rm -rf quorum-genesis
         fi
-        echo "I've added your addresses to the genesis config, let's add any other members"
         voters=()
         if [[ $isVoter == "y" ]]; then
             voters+=("0x$VoterAddress")
         fi
+        echo "I've added your addresses to the genesis config, let's add any other members"
         anotherVoter=$(askUserYesOrNoQuestion "Do you want to add more voters to the config?")
         while ([[ $anotherVoter == "y" ]]); do
             echo "Enter voter address (with 0x prefix):"
@@ -240,6 +251,7 @@ else
             blockmakers+=("$b")
             anotherBlockMaker=$(askUserYesOrNoQuestion "Do you want to add more blockmakers to the config?")
         done
+        # Create a genesis config file based on the given voters and blockmakers
         config='{"threshold":'"${#voters[@]}"',"voters":['
         for index in ${!voters[@]}; do
             config="$config\"${voters[index]}\","
@@ -250,7 +262,9 @@ else
         done
         config="${config::-1}]}"
         echo $config > "quorum-config.json"
+        # Invoke quorum-genesis tool to generate genesis.json from quorum-config.json
         quorum-genesis
+        # Copy the created genesis.json into the node directory
         cp quorum-genesis.json "$NODE_DIR/genesis.json"
         rm quorum-genesis.json
         rm quorum-config.json
@@ -269,3 +283,4 @@ echo "This script uses these awesome project;"
 echo "https://github.com/davebryson/quorum-genesis by Dave Bryson, thanks Dave!"
 echo "https://github.com/agriessel/quorum-docker by Alex OpenSource, thanks Alex!"
 echo
+echo "........................................."

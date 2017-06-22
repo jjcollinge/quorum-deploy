@@ -1,15 +1,15 @@
 #!/bin/bash
 
+# This script will be executed on
+# start up of the bootnode container
+# image. It's responsible for configuring
+# the bootnode client with the given parameters
+
+# Settinng some logging variables
 LOG_FILE="logs/start.log"
 TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 
-# Create log file if doesn't already exist
-if [[ ! -f $LOG_FILE ]]; then
-    LOG_DIR=$(dirname $LOG_FILE)
-    mkdir -p $LOG_DIR
-    touch $LOG_FILE
-fi
-
+# Function definitions
 function log ()
 {
     echo "$TIMESTAMP $1" | tee -a $LOG_FILE
@@ -23,6 +23,13 @@ function ensureVarSet ()
     fi
 }
 
+# Create log file if doesn't already exist
+if [[ ! -f $LOG_FILE ]]; then
+    LOG_DIR=$(dirname $LOG_FILE)
+    mkdir -p $LOG_DIR
+    touch $LOG_FILE
+fi
+
 # Start a local bootnode
 touch "logs/bootnode.log"
 nohup bootnode -genkey bootnode.key -addr "0.0.0.0:33445" > "logs/bootnode.log" 2>&1 &
@@ -32,11 +39,22 @@ log "Waiting for bootnode to start..."
 for i in $(seq 1 6); do echo -ne "." 2>&1 > $LOG_FILE; sleep 1; done
 echo "" 2>&1 > $LOG_FILE
 
-# Load config
 log "Loading configuration file"
-rm -f /opt/bootnode/env.sh
-python /opt/bootnode/loadconfig.py
-source /opt/bootnode/env.sh
+# Running some inline python to read values
+# from the JSON configuration file
+python << END
+import json
+import os
+config_file = '/opt/quorum/config.json'
+env_file = '/opt/quorum/env.sh'
+with open(config_file, "r") as config_file:
+    config = json.load(config_file)
+with open(env_file, "w") as env_file:
+    for key, value in config.items():
+        key=key.upper()
+        env_file.write("{0}=\"{1}\"\n".format(key, value))
+END
+source /opt/quorum/env.sh
 
 # Define global constants
 AZURE_STORAGE_TABLE="networkbootnodes"

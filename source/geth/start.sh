@@ -1,18 +1,25 @@
 #!/bin/bash
 
+# This script will be executed on
+# start up of the geth container
+# image. It's responsible for configuring
+# the geth client with the given parameters
+
+# Settinng some logging variables
 LOG_FILE="temp/logs/start.log"
 TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 
-# Create log file if doesn't already exist
-if [[ ! -f $LOG_FILE ]]; then
-    LOG_DIR=$(dirname $LOG_FILE)
-    mkdir -p $LOG_DIR
-    touch $LOG_FILE
-fi
-
+# Function definitions
 function log ()
 {
     echo "$TIMESTAMP $1" | tee -a $LOG_FILE
+}
+
+function terminate()
+{
+    log "Fatal error"
+    log "Command: $1"
+    exit 1
 }
 
 function ensureVarSet ()
@@ -23,14 +30,31 @@ function ensureVarSet ()
     fi
 }
 
+# Create log file if doesn't already exist
+if [[ ! -f $LOG_FILE ]]; then
+    LOG_DIR=$(dirname $LOG_FILE)
+    mkdir -p $LOG_DIR
+    touch $LOG_FILE
+fi
+
 log "Starting geth initialisation"
 
-# Load config from file
-# this is delegated to python
-# could be replaced with jq
+
 log "Loading configuration file"
-rm -f /opt/quorum/env.sh
-python /opt/quorum/loadconfig.py
+# Running some inline python to read values
+# from the JSON configuration file
+python << END
+import json
+import os
+config_file = '/opt/quorum/config.json'
+env_file = '/opt/quorum/env.sh'
+with open(config_file, "r") as config_file:
+    config = json.load(config_file)
+with open(env_file, "w") as env_file:
+    for key, value in config.items():
+        key=key.upper()
+        env_file.write("{0}=\"{1}\"\n".format(key, value))
+END
 source /opt/quorum/env.sh
 
 # Define global constants
@@ -62,11 +86,13 @@ az account set -s $AZURESUBSCRIPTIONID 2>&1 >> $LOG_FILE
 # whether table exists
 suffix=${AZURETABLESTORAGENAME#storage}
 AzureResourceGroup=$(az group list | grep $suffix | grep "name" | awk '{ print $2 }' | tr -cd '[[:alnum:]]._-' )
+if [[ $? -ne 0 ]]; then terminate !!
 export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string --name $AZURETABLESTORAGENAME --resource-group $AzureResourceGroup | grep "connectionString" | awk '{ print $2 }')
 
 # Initialise Geth client
 log "Initialising geth"
 geth --datadir /opt/quorum/data init genesis.json
+if [[ $? -ne 0 ]]; then terminate !!
 
 # Copy key files into geth's keystore
 log "Copying key files to keystore"
@@ -109,7 +135,6 @@ if [[ "${ISVOTER,,}" = 'true' ]];then
     log "Configuring client as voter"
     args="$args --voteaccount $VOTERACCOUNTADDRESS --votepassword \"${VOTERACCOUNTPASSWORD}\" "
 fi
-
 if [[ "${ISBLOCKMAKER,,}" = 'true' ]];then
     log "Configuring client as blockmaker"
     args="$args --blockmakeraccount $BLOCKMAKERACCOUNTADDRESS --blockmakerpassword \"${BLOCKMAKERACCOUNTPASSWORD}\" "
@@ -119,3 +144,4 @@ fi
 log "Starting Geth with args: $args"
 PRIVATE_CONFIG=/opt/quorum/data/constellation.ipc
 eval geth "${args}" 2>&1 > geth.log
+if [[ $? -ne 0 ]]; then terminate !!

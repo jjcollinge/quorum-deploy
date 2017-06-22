@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Handle arguments...
+# This script is intended to be called
+# from the ARM template and thus the 
+# argument flags don't really matter.
 while getopts ":a:b:c:d:e:f:g:" opt; do
   case "$opt" in
     a) AzureTenant="$OPTARG"
@@ -19,6 +23,7 @@ while getopts ":a:b:c:d:e:f:g:" opt; do
   esac
 done
 
+# Set variables relating to logging
 BASEDIR=$(pwd)
 EPOCH=$(date +%s)
 LOG_FILE="$BASEDIR/run$EPOCH.log"
@@ -84,6 +89,7 @@ AzureTableStorageSas=$(az storage table generate-sas --name networkbootnodes --a
 # Add Azure storage table details into node config file
 log "Adding azure storage table access details into node's config file if not present"
 if ! grep -q "AzureTableStorageName" /opt/quorum-deploy/node/config.json; then
+# Running some inline python to handle JSON manipulation
 python << END
 import json
 import sys
