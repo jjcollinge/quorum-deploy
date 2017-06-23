@@ -1,11 +1,11 @@
 {
-        "IsVoter": true,
-        "VoterAccountAddress": "0x0fbdc686b912d7722dc86510934589e0aaf3b55a",
-        "IsBlockMaker": true,
-        "BlockMakerAccountAddress": "0xca843569e3427144cead5e4d5999a3d0ccf92b8e",
+        "IsVoter": false,
+        "VoterAccountAddress": "",
+        "IsBlockMaker": false,
+        "BlockMakerAccountAddress": "",
         "GethNetworkId": 4444,
-        "AzureSubscriptionId": "04f7ec88-8e28-41ed-8537-5e17766001f5",
-        "AzureTenant": "72f988bf-86f1-41af-91ab-2d7cd011db47",
-        "AzureSPNAppId": "f96430ba-e364-49be-8af8-68c9cf47e41e",
-        "AzureSPNPassword": "md1fCbwf8"
+        "AzureSubscriptionId": "",
+        "AzureTenant": "",
+        "AzureSPNAppId": "",
+        "AzureSPNPassword": ""
 }
