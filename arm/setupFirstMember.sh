@@ -36,6 +36,16 @@ function log () {
 
 log "Starting first member setup"
 
+# Validate required parameters are set
+if [[ -z $AzureTenant ]] ||
+   [[ -z $AzureSPNAppId ]] ||
+   [[ -z $AzureSPNPassword ]] ||
+   [[ -z $AzureSubscriptionId ]] ||
+   [[ -z $AzureResourceGroup ]] ||
+   [[ -z $AzureBlobStorageName ]]; then
+   log "Fatal error: required parameter is not provided"
+fi
+
 # Check whether az cli is installed
 if [[ $(dpkg -l | grep az | wc -l) == 0 ]]; then
   # Doesn't look like it, let's install it now
@@ -84,7 +94,7 @@ AzureTableStorageName=$AzureBlobStorageName
 az storage table create -n networkbootnodes 2>&1 >> $LOG_FILE
 dateVar=$(TZ=UTC date +"%Y-%m-%dT%H:%MZ" -d "+5 days")
 log "Generating SAS token for bootnode registry table"
-AzureTableStorageSas=$(az storage table generate-sas --name networkbootnodes --account-name $AzureTableStorageName --permissions raud --expiry ${dateVar} --output tsv)
+AzureTableStorageSas=$(az storage account generate-sas --account-name $AzureTableStorageName --expiry ${dateVar} --permissions ldpruwac --resource-types sco --services t --output tsv)
 
 # Add Azure storage table details into node config file
 log "Adding azure storage table access details into node's config file if not present"
@@ -121,8 +131,9 @@ sed -i -e "s/__OtherConstellationNodes__//g" /opt/quorum-deploy/source/constella
 
 # Inject cakeshop config values
 log "Injecting cakeshop config values"
-GethNetworkId=$(cat /opt/quorum-deploy/node/config.json | grep "GethNetworkId" | awk '{ print $2 }' | sed 's/[^0-9]*//g')
-sed -i -e 's/__GethNetworkId__/'"$GethNetworkId"'/g' /opt/quorum-deploy/source/quorum-bootnode.yml
+#GethNetworkId=$(cat /opt/quorum-deploy/node/config.json | grep "GethNetworkId" | awk '{ print $2 }' | sed 's/[^0-9]*//g')
+GethNodeIP=$(curl -s -4 http://checkip.amazonaws.com || printf "0.0.0.0")
+sed -i -e 's/__GethNodeIP__/'"$GethNodeIP"'/g' /opt/quorum-deploy/source/quorum-bootnode.yml
 
 # [Re]build docker images if desired
 if [[ "$Rebuild" = true ]]; then

@@ -83,9 +83,9 @@ az account set -s $AZURESUBSCRIPTIONID 2>&1 >> "logs/azure.log"
 # ideally I'll remove this to use SAS but
 # currently there is a bug with checking
 # whether table exists
-suffix=${AZURETABLESTORAGENAME#storage}
-AzureResourceGroup=$(az group list | grep $suffix | grep "name" | awk '{ print $2 }' | tr -cd '[[:alnum:]]._-' )
-export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string --name $AZURETABLESTORAGENAME --resource-group $AzureResourceGroup | grep "connectionString" | awk '{ print $2 }')
+#suffix=${AZURETABLESTORAGENAME#storage}
+#AzureResourceGroup=$(az group list | grep $suffix | grep "name" | awk '{ print $2 }' | tr -cd '[[:alnum:]]._-' )
+#export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string --name $AZURETABLESTORAGENAME --resource-group $AzureResourceGroup | grep "connectionString" | awk '{ print $2 }')
 
 # Grab the bootnode public key
 LOCAL_BOOTNODE=$(grep -i "listening" "logs/bootnode.log" | awk '{print $5}' | head -n 1)

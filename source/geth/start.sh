@@ -84,10 +84,10 @@ az account set -s $AZURESUBSCRIPTIONID 2>&1 >> $LOG_FILE
 # ideally I'll remove this to use SAS but
 # currently there is a bug with checking
 # whether table exists
-suffix=${AZURETABLESTORAGENAME#storage}
-AzureResourceGroup=$(az group list | grep $suffix | grep "name" | awk '{ print $2 }' | tr -cd '[[:alnum:]]._-' )
-if [[ $? -ne 0 ]]; then terminate !!
-export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string --name $AZURETABLESTORAGENAME --resource-group $AzureResourceGroup | grep "connectionString" | awk '{ print $2 }')
+#suffix=${AZURETABLESTORAGENAME#storage}
+#AzureResourceGroup=$(az group list | grep $suffix | grep "name" | awk '{ print $2 }' | tr -cd '[[:alnum:]]._-' )
+#if [[ $? -ne 0 ]]; then terminate !!
+#export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string --name $AZURETABLESTORAGENAME --resource-group $AzureResourceGroup | grep "connectionString" | awk '{ print $2 }')
 
 # Initialise Geth client
 log "Initialising geth"
