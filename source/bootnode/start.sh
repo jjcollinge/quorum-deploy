@@ -111,7 +111,7 @@ log "Using bootnode public key: $LOCAL_BOOTNODE"
 
 # Checking whether existing bootnode registry exists
 log "Checking whether bootnode registry '$AZURE_STORAGE_TABLE' exists"
-TABLE_ARGS="--account-name $AZURETABLESTORAGENAME --sas-token $AZURETABLESTORAGESAS
+TABLE_ARGS="--account-name $AZURETABLESTORAGENAME --sas-token $AZURETABLESTORAGESAS"
 exists=$(az storage table exists --name $AZURE_STORAGE_TABLE $TABLE_ARGS)
 
 if [[ $exists == *"false"* ]]; then
