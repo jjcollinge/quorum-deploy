@@ -63,7 +63,7 @@ log "Creating zip archive of node directory $NodeDir"
 cd $NodeDir && zip -r ../node.zip * && cd ..
 
 # Getting Azure details from node config file
-log "Grabbing Azure details from config file"
+log "Grabbing Azure details from config file $NodeDir/config"
 AzureTenant=$(cat $NodeDir/config.json | grep "AzureTenant" | awk '{ print $2 }')
 AzureTenant="${AzureTenant%\"*}"
 AzureTenant=$(echo "$AzureTenant" | tr -d '",')
@@ -113,10 +113,11 @@ sed -i "s/__AzureSubscriptionId__/$AzureSubscriptionId/g" $TempParamsFile
 
 # Set storage account connection string
 log "Setting storage account connection string"
-export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string \
+AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string \
     --name $StorageName \
     --resource-group $ResourceGroupName \
     | grep "connectionString" | awk '{ print $2 }')
+export AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING:1:-1}
 
 # Create new blob storage container
 log "Creating azure storage blob container"

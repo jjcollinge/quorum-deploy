@@ -45,8 +45,8 @@ log "Loading configuration file"
 python << END
 import json
 import os
-config_file = '/opt/quorum/config.json'
-env_file = '/opt/quorum/env.sh'
+config_file = '/opt/bootnode/config.json'
+env_file = '/opt/bootnode/env.sh'
 with open(config_file, "r") as config_file:
     config = json.load(config_file)
 with open(env_file, "w") as env_file:
@@ -54,7 +54,7 @@ with open(env_file, "w") as env_file:
         key=key.upper()
         env_file.write("{0}=\"{1}\"\n".format(key, value))
 END
-source /opt/quorum/env.sh
+source /opt/bootnode/env.sh
 
 # Define global constants
 AZURE_STORAGE_TABLE="networkbootnodes"
@@ -111,7 +111,7 @@ log "Using bootnode public key: $LOCAL_BOOTNODE"
 
 # Checking whether existing bootnode registry exists
 log "Checking whether bootnode registry '$AZURE_STORAGE_TABLE' exists"
-TABLE_ARGS="--account-name $AZURETABLESTORAGENAME --sas-token \"$AZURETABLESTORAGESAS\""
+TABLE_ARGS="--account-name $AZURETABLESTORAGENAME --sas-token $AZURETABLESTORAGESAS
 exists=$(az storage table exists --name $AZURE_STORAGE_TABLE $TABLE_ARGS)
 
 if [[ $exists == *"false"* ]]; then

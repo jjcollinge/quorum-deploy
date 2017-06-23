@@ -39,7 +39,6 @@ fi
 
 log "Starting geth initialisation"
 
-
 log "Loading configuration file"
 # Running some inline python to read values
 # from the JSON configuration file
@@ -65,6 +64,7 @@ BOOTNODE_PORT=33445
 BLOB_CONTAINER="node"
 BLOB_FILE="files.zip"
 KEYSTORE="/opt/quorum/data/keystore"
+DATADIR="/opt/quorum/data/"
 
 # Ensure all required varaibles are set
 ensureVarSet $GETHNETWORKID ${!GETHNETWORKID@}
@@ -91,14 +91,11 @@ az account set -s $AZURESUBSCRIPTIONID 2>&1 >> $LOG_FILE
 
 # Initialise Geth client
 log "Initialising geth"
-geth --datadir /opt/quorum/data init genesis.json
-if [[ $? -ne 0 ]]; then terminate !!
+geth --datadir $DATADIR init genesis.json
 
 # Copy key files into geth's keystore
 log "Copying key files to keystore"
-for KEY in "keys/key*"; do
-    cp $KEY $KEYSTORE
-done
+cp keys/* $KEYSTORE
 
 # Check bootnode registry exists
 log "Checking whether bootnode registry '$AZURE_STORAGE_TABLE' exists"
@@ -128,20 +125,19 @@ else
 fi
 
 # Setting Geth cmdline arguments
-args="--datadir /opt/quorum/data $bootnode_args --networkid $GETHNETWORKID --rpc --rpcaddr 0.0.0.0 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,quorum --rpcport 8545 --port 30303"
+args="--datadir /opt/quorum/data/geth/ $bootnode_args --networkid $GETHNETWORKID --rpc --rpcaddr 0.0.0.0 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,quorum --rpcport 8545 --port 30303"
 
 # Inject Quorum role details if present
-if [[ "${ISVOTER,,}" = 'true' ]];then
+if [[ "${ISVOTER,,}" = 'true' ]]; then
     log "Configuring client as voter"
     args="$args --voteaccount $VOTERACCOUNTADDRESS --votepassword \"${VOTERACCOUNTPASSWORD}\" "
 fi
-if [[ "${ISBLOCKMAKER,,}" = 'true' ]];then
+if [[ "${ISBLOCKMAKER,,}" = 'true' ]]; then
     log "Configuring client as blockmaker"
     args="$args --blockmakeraccount $BLOCKMAKERACCOUNTADDRESS --blockmakerpassword \"${BLOCKMAKERACCOUNTPASSWORD}\" "
 fi
 
 # Start Geth
 log "Starting Geth with args: $args"
-PRIVATE_CONFIG=/opt/quorum/data/constellation.ipc
-eval geth "${args}" 2>&1 > geth.log
-if [[ $? -ne 0 ]]; then terminate !!
+PRIVATE_CONFIG="$DATADIR/constellation.ipc"
+eval geth "${args}" 2>&1 > geth.log 
