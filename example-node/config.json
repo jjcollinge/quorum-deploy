@@ -1,8 +1,8 @@
 {
         "IsVoter": true,
-        "VoterAccountAddress": "0xca843569e3427144cead5e4d5999a3d0ccf92b8e",
+        "VoterAccountAddress": "0x0fbdc686b912d7722dc86510934589e0aaf3b55a",
         "IsBlockMaker": true,
-        "BlockMakerAccountAddress": "0x0fbdc686b912d7722dc86510934589e0aaf3b55a",
+        "BlockMakerAccountAddress": "0xca843569e3427144cead5e4d5999a3d0ccf92b8e",
         "GethNetworkId": 4444,
         "AzureSubscriptionId": "",
         "AzureTenant": "",
