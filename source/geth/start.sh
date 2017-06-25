@@ -63,7 +63,6 @@ AZURE_ROW_KEY=$GETHNETWORKID
 BOOTNODE_PORT=33445
 BLOB_CONTAINER="node"
 BLOB_FILE="files.zip"
-KEYSTORE="/opt/quorum/data/keystore"
 DATADIR="/opt/quorum/data/"
 
 # Ensure all required varaibles are set
@@ -95,7 +94,7 @@ geth --datadir $DATADIR init genesis.json
 
 # Copy key files into geth's keystore
 log "Copying key files to keystore"
-cp keys/* $KEYSTORE
+cp keys/* "$DATADIR/keystore"
 
 # Check bootnode registry exists
 log "Checking whether bootnode registry '$AZURE_STORAGE_TABLE' exists"
@@ -125,7 +124,7 @@ else
 fi
 
 # Setting Geth cmdline arguments
-args="--datadir /opt/quorum/data/geth/ $bootnode_args --networkid $GETHNETWORKID --rpc --rpcaddr 0.0.0.0 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,quorum --rpcport 8545 --port 30303"
+args="--datadir $DATADIR $bootnode_args --networkid $GETHNETWORKID --rpc --rpcaddr 0.0.0.0 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,quorum --rpcport 8545 --port 30303"
 
 # Inject Quorum role details if present
 if [[ "${ISVOTER,,}" = 'true' ]]; then
