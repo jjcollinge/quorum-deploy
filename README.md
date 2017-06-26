@@ -22,20 +22,34 @@ The templates requires an Azure Service Principal registered with owner permissi
 
 ## Usage (Example node)
 
-1. Complete the required configuration:
+1. Open `./arm/firstMember.parameters.json`
 
-* ./arm/firstMember.parameters.json - unique dns name, vm username, vm password
-* ./example-node/config.json - azure details
+2. Provide values for the following fields:
+* `adminUsername`
+* `adminPassword`
+* `dnsLabelPrefix` (must be unique)
 
-2. Run the deploy node script and target the example-node configuration
+3. Save and close the file
+
+4. Open `./example-node/config.json`
+
+5. Provide values for the following fields:
+* `AzureSubscriptionId`
+* `AzureTenant`
+* `AzureSPNAppId`
+* `AzureSPNPassword`
+
+6. Save and close the file
+
+7. Run the deploy node script and target the example-node configuration
 
 ```
     ./deploy-node.sh -n myrg -l westeurope -t ./arm/firstMember.json -p ./arm/firstMember.parameters.json -d ./example-node
 ```
  
-3. Grab your deployments public ip address and go explore your deployment
+8. Grab your deployments public ip address and go explore your deployment
 
-4. Your geth client should now be connected. Grab your IP or DNS name from the deployment outputs or the Azure portal and visit your cakeshop portal at http://{fqdn}.com:8080/cakeshop
+9. Your geth client should now be connected. Grab your IP or DNS name from the deployment outputs or the Azure portal and visit your cakeshop portal at http://{fqdn}.com:8080/cakeshop
 
 ## Usage (Custom node)
 
