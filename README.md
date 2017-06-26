@@ -35,7 +35,7 @@ The templates requires an Azure Service Principal registered with owner permissi
  
 3. Grab your deployments public ip address and go explore your deployment
 
-4. Your geth client should now be connected. Grab your IP or DNS name from the deployment outputs or the Azure portal and visit your cakeshop portal at http://<fqdn>.com:8080/cakeshop
+4. Your geth client should now be connected. Grab your IP or DNS name from the deployment outputs or the Azure portal and visit your cakeshop portal at http://{fqdn}.com:8080/cakeshop
 
 ## Usage (Custom node)
 
@@ -63,6 +63,6 @@ The templates requires an Azure Service Principal registered with owner permissi
   -p parameterfile     specify an arm parameters file
   -d node     specify a local node directory
 ```
-6. Your geth client should now be connected. Grab your IP or DNS name from the deployment outputs or the Azure portal and visit your cakeshop portal at http://<fqdn>.com:8080/cakeshop
+6. Your geth client should now be connected. Grab your IP or DNS name from the deployment outputs or the Azure portal and visit your cakeshop portal at http://{fqdn}.com:8080/cakeshop
 
 
