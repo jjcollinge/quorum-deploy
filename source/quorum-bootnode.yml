@@ -30,9 +30,7 @@ services:
     restart: always
 
   cakeshops-svc:
-    image: jpmc/cakeshop
-    environment:
-      - JAVA_OPTS="-Dgeth.url=http\://__GethNodeIP__\:8545 -Dgeth.auto.start=false -Dgeth.auto.stop=false"
+    build: ./cakeshop
     volumes:
       - ./data:/opt/cakeshop/data
     ports:
