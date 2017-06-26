@@ -131,4 +131,5 @@ az storage blob upload -f node.zip -c node -n files.zip 2>&1 >> $LOG_FILE
 log "Starting Azure resource group deployment"
 echo "Template file: $TemplateFilePath"
 echo "Parameters file: $TemplateParametersFilePath"
-az group deployment create -g $ResourceGroupName --template-file "$TemplateFilePath" --parameters "@$TempParamsFile" --debug 2>&1 >> $LOG_FILE
+
+az group deployment create -g $ResourceGroupName --template-file "$TemplateFilePath" --parameters "@$TempParamsFile" 2>&1 >> $LOG_FILE

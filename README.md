@@ -30,7 +30,7 @@ The templates requires an Azure Service Principal registered with owner permissi
 2. Run the deploy node script and target the example-node configuration
 
 ```
-    ./deploy-node.sh -n myrg -l westeurope -t ./arm/firstMember.json -p firstMember.parameters.json -d ./example-node
+    ./deploy-node.sh -n myrg -l westeurope -t ./arm/firstMember.json -p ./arm/firstMember.parameters.json -d ./example-node
 ```
  
 3. Grab your deployments public ip address and go explore your deployment
@@ -65,4 +65,5 @@ The templates requires an Azure Service Principal registered with owner permissi
 ```
 6. Your geth client should now be connected. Grab your IP or DNS name from the deployment outputs or the Azure portal and visit your cakeshop portal at http://{fqdn}.com:8080/cakeshop
 
-
+## Diagram
+![](https://raw.githubusercontent.com/jjcollinge/quorum-deploy/master/images/quorum-deploy.png)
