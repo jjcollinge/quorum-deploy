@@ -4,7 +4,7 @@
 # This script is intended to be called
 # from the ARM template and thus the 
 # argument flags don't really matter.
-while getopts ":a:b:c:d:e:f:g:" opt; do
+while getopts ":a:b:c:d:e:f:" opt; do
   case "$opt" in
     a) AzureTenant="$OPTARG"
     ;;
@@ -16,9 +16,7 @@ while getopts ":a:b:c:d:e:f:g:" opt; do
     ;;
     e) AzureResourceGroup="$OPTARG"
     ;;
-    f) AzureBlobStorageName="$OPTARG"
-    ;;
-    g) Rebuild="$OPTARG"
+    f) Rebuild="$OPTARG"
     ;;
   esac
 done
@@ -35,6 +33,16 @@ function log () {
 }
 
 log "Starting additional member setup"
+
+# Validate required parameters are set
+if [[ -z $AzureTenant ]] ||
+   [[ -z $AzureSPNAppId ]] ||
+   [[ -z $AzureSPNPassword ]] ||
+   [[ -z $AzureSubscriptionId ]] ||
+   [[ -z $AzureResourceGroup ]] ||
+   [[ -z $AzureBlobStorageName ]]; then
+   log "Fatal error: required parameter is not provided"
+fi
 
 # Check whether az cli is installed
 if [[ $(dpkg -l | grep az | wc -l) == 0 ]]; then
@@ -77,6 +85,13 @@ az storage blob download -c node -n files.zip -f /opt/quorum-deploy/node.zip 2>&
 log "Expanding archive"
 mkdir -p /opt/quorum-deploy/node
 unzip /opt/quorum-deploy/node.zip -d /opt/quorum-deploy/node 2>&1 >> $LOG_FILE
+# Check node was expanded correctly
+if [ "$(ls -A /opt/quorum-deploy/node)" ]; then
+  log "Node expanded successfully"
+else
+  log "Node is empty, something went wrong"
+  exit 1
+fi
 
 # Copy geth files to local geth directory
 log "Copying files to local Geth directory"

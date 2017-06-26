@@ -49,7 +49,7 @@ The templates requires an Azure Service Principal registered with owner permissi
  
 8. Grab your deployments public ip address and go explore your deployment
 
-9. Your geth client should now be connected. Grab your IP or DNS name from the deployment outputs or the Azure portal and visit your cakeshop portal at http://{fqdn}.com:8080/cakeshop
+9. Your geth client should now be connected. Grab your IP or DNS name from the deployment outputs or the Azure portal and visit your cakeshop portal at http://{hostname}.com:8080/cakeshop
 
 ## Usage (Custom node)
 
@@ -77,19 +77,21 @@ The templates requires an Azure Service Principal registered with owner permissi
   -p parameterfile     specify an arm parameters file
   -d node     specify a local node directory
 ```
-6. Your geth client should now be connected. Grab your IP or DNS name from the deployment outputs or the Azure portal and visit your cakeshop portal at http://{fqdn}.com:8080/cakeshop
+6. Your geth client should now be connected. Grab your IP or DNS name from the deployment outputs or the Azure portal and visit your cakeshop portal at http://{hostname}.com:8080/cakeshop
 
-## Usage (Additionl nodes)
-Follow the steps for the first node above but invoke the deployment script using the additional member template instead.
+## Usage (Additional nodes)
+
+Follow the steps for creating a custom node above. However, note these differences:
+
+1. You will be required to provide values for the additional `config.json` fields: `AzureTableStorageName` and `AzureTableStorageSas`. These should be provided by whom ever established the first node.
+
+2. You will deploy using the `additionalMember.json` template file.
 
 ```
     ./deploy-node.sh -n myrg -l westeurope -t ./arm/additionalMember.json -p ./arm/additionalMember.parameters.json -d ./additionalMemberNode
 ```
 
-Once the deployment has completed, you should have a quorum deployment that is connected to your first member node.
-
-**NOTE:** This deployment will only run a geth and constellation node. No cakeshop or additional services will be deployed.
-Once the deployment has completed
+3. Once the deployment has completed, you quorum node should be connected to *atleast* the first member in the network. **NOTE:** This deployment will not stand up a Cakeshop, LogScrapper or Bootnode container.
 
 ## Diagram
 <img src="images/quorum-deploy.png?raw=true" />

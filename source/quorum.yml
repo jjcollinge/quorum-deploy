@@ -1,7 +1,7 @@
 version: "2"
 
 services:
-  geth:
+  geth-svc:
     build: ./geth
     volumes:
       - ./chain:/opt/quorum/data
@@ -10,9 +10,9 @@ services:
       - "30303:30303"
       - "8545:8545"
     depends_on:
-      - constellation
+      - constellation-svc
 
-  constellation:
+  constellation-svc:
     build: ./constellation
     volumes:
       - ./chain:/opt/quorum/data

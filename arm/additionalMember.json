@@ -20,54 +20,6 @@
         "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
       }
     },
-    "IsVoter": {
-      "type": "bool",
-      "metadata": {
-        "description": "Set this node as a Quorum voter"
-      }
-    },
-    "VoterAccountAddress": {
-      "type": "string",
-      "metadata": {
-        "description": "The voting account address for this node"
-      }
-    },
-    "VoterAccountPassword": {
-      "type": "string",
-      "metadata": {
-        "description": "The voting account password the voting account address"
-      }
-    },
-    "IsBlockmaker": {
-      "type": "bool",
-      "metadata": {
-        "description": "Set this node as a Quorum blockmaker"
-      }
-    },
-    "BlockmakerAccountAddress": {
-      "type": "string",
-      "metadata": {
-        "description": "The blockmaker account password the blockmaker account address"
-      }
-    },
-    "BlockmakerAccountPassword": {
-      "type": "string",
-      "metadata": {
-        "description": "The blockmaker account password the blockmaker account address"
-      }
-    },
-    "GethNetworkId": {
-      "type": "int",
-      "metadata": {
-        "description": "Network id of the Geth network"
-      }
-    },
-    "AzureStorageConnectionString": {
-      "type": "string",
-      "metadata": {
-        "description": "Azure storage account connection string"
-      }
-    },
     "AzureTenant": {
       "type": "string",
       "metadata": {
@@ -86,10 +38,10 @@
         "description": "Azure service principal password"
       }
     },
-    "OtherConstellationNodes": {
+    "AzureSubscriptionId":{
       "type": "string",
       "metadata": {
-        "description": "An array of existing constellation endpoints i.e. \"http://localhost:9000\""
+        "description": "Azure subscription id"
       }
     }
   },
@@ -103,9 +55,9 @@
     "subnetPrefix": "10.0.0.0/24",
     "storageAccountType": "Standard_LRS",
     "publicIPAddressName": "myPublicIP",
-    "publicIPAddressType": "Dynamic",
+    "publicIPAddressType": "Static",
     "vmName": "MyUbuntuVM",
-    "vmSize": "Standard_A1",
+    "vmSize": "Standard_D2_v2",
     "virtualNetworkName": "MyVNET",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
@@ -113,7 +65,8 @@
     "extensionName": "DockerExtension",
     "nsgName": "myNSG",
     "nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('nsgName'))]",
-    "scriptUrl": "https://raw.githubusercontent.com/jjcollinge/quorum-deploy/master/arm/setupAdditionalMember.sh"
+    "scriptUrl": "https://raw.githubusercontent.com/jjcollinge/quorum-deploy/master/arm/setupAdditionalMember.sh",
+    "scriptCommand": "[concat('bash setupFirstMember.sh',' -a \"',parameters('AzureTenant'),'\" -b \"',parameters('AzureSPNAppId'),'\" -c \"',parameters('AzureSPNPassword'),'\" -d \"',parameters('AzureSubscriptionId'),'\" -e \"',resourceGroup().name,'\" -f false')]"
   },
   "resources": [
     {
@@ -174,20 +127,6 @@
       "properties": {
         "securityRules": [
           {
-            "name": "http",
-            "properties": {
-              "description": "Allow HTTP",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "80",
-              "sourceAddressPrefix": "Internet",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 100,
-              "direction": "Inbound"
-            }
-          },
-          {
             "name": "ssh",
             "properties": {
               "description": "Allow SSH",
@@ -200,7 +139,7 @@
               "priority": 110,
               "direction": "Inbound"
             }
-          },
+          }
           {
             "name": "geth-in",
             "properties": {
@@ -254,7 +193,21 @@
               "destinationAddressPrefix": "*",
               "access": "Allow",
               "priority": 160,
-              "direction": "Outbound"
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "geth-rpc",
+            "properties": {
+              "description": "Allow Geth RPC traffic inbound",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "8545",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 170,
+              "direction": "Inbound"
             }
           }
         ]
@@ -373,7 +326,7 @@
           "fileUris": [
             "[variables('scriptUrl')]"
           ],
-          "commandToExecute": "[concat('bash setupAdditionalMember.sh',' -a ',parameters('isVoter'),' -b \"',parameters('VoterAccountAddress'),'\" -c \"',parameters('VoterAccountPassword'),'\" -d ',parameters('IsBlockmaker'),' -e \"',parameters('BlockmakerAccountAddress'),'\" -f \"',parameters('BlockmakerAccountPassword'),'\" -g ',parameters('GethNetworkId'),' -h \"',parameters('AzureStorageConnectionString'),'\" -i \"',parameters('AzureTenant'),'\" -j \"',parameters('AzureSPNAppId'),'\" -k \"',parameters('AzureSPNPassword'),'\" -l \"','0.0.0.0','\" -m \"',parameters('OtherConstellationNodes'),'\" -n false')]"
+          "commandToExecute": "[variables('scriptCommand')]"
         }
       }
     }

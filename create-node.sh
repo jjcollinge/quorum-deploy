@@ -194,18 +194,35 @@ else
     IsBlockMakerValue=false
 fi
 
+FirstNode=$(askUserYesOrNoQuestion "Is this the first node in the network?")
 echo "Generating your deployment config"
-echo '{
-        "IsVoter": '"$IsVoterValue"',
-        "VoterAccountAddress": "'"0x$VoterAddress"'",
-        "IsBlockMaker": '"$IsBlockMakerValue"',
-        "BlockMakerAccountAddress": "'"0x$BlockMakerAddress"'",
-        "GethNetworkId": 4444,
-        "AzureSubscriptionId": "",
-        "AzureTenant": "",
-        "AzureSPNAppId": "",
-        "AzureSPNPassword": ""
-     }' > "$NODE_DIR/config.json"
+if [[ $FirstNode == "y" ]]; then
+    echo '{
+            "IsVoter": '"$IsVoterValue"',
+            "VoterAccountAddress": "'"0x$VoterAddress"'",
+            "IsBlockMaker": '"$IsBlockMakerValue"',
+            "BlockMakerAccountAddress": "'"0x$BlockMakerAddress"'",
+            "GethNetworkId": 4444,
+            "AzureSubscriptionId": "",
+            "AzureTenant": "",
+            "AzureSPNAppId": "",
+            "AzureSPNPassword": ""
+        }' > "$NODE_DIR/config.json"
+else
+    echo '{
+            "IsVoter": '"$IsVoterValue"',
+            "VoterAccountAddress": "'"0x$VoterAddress"'",
+            "IsBlockMaker": '"$IsBlockMakerValue"',
+            "BlockMakerAccountAddress": "'"0x$BlockMakerAddress"'",
+            "GethNetworkId": 4444,
+            "AzureSubscriptionId": "",
+            "AzureTenant": "",
+            "AzureSPNAppId": "",
+            "AzureSPNPassword": "",
+            "AzureTableStorageName": "",
+            "AzureTableStorageSas": ""
+        }' > "$NODE_DIR/config.json"
+fi
 echo "Done config, let's start on the genesis.json"
 
 # Ask whether we need to generate a genesis.json file or not
