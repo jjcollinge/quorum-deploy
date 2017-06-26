@@ -29,7 +29,7 @@ services:
       - "9000:9000"
     restart: always
 
-  cakeshops-svc:
+  cakeshop-svc:
     build: ./cakeshop
     volumes:
       - ./data:/opt/cakeshop/data
