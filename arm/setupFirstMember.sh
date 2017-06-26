@@ -131,9 +131,11 @@ sed -i -e "s/__OtherConstellationNodes__//g" /opt/quorum-deploy/source/constella
 
 # Inject cakeshop config values
 log "Injecting cakeshop config values"
-#GethNetworkId=$(cat /opt/quorum-deploy/node/config.json | grep "GethNetworkId" | awk '{ print $2 }' | sed 's/[^0-9]*//g')
+GethNetworkId=$(cat /opt/quorum-deploy/node/config.json | grep "GethNetworkId" | awk '{ print $2 }' | sed 's/[^0-9]*//g')
 GethNodeIP=$(curl -s -4 http://checkip.amazonaws.com || printf "0.0.0.0")
-sed -i -e 's/__GethNodeIP__/'"$GethNodeIP"'/g' /opt/quorum-deploy/source/quorum-bootnode.yml
+#sed -i -e 's/__GethNodeIP__/'"$GethNodeIP"'/g' /opt/quorum-deploy/source/quorum-bootnode.yml
+sed -i -e 's/__GethNodeIP__/'"$GethNodeIP"'/g' /opt/quorum-deploy/source/cakeshop/application.properties
+sed -i -e 's/__GethNetworkId__/'"$GethNetworkId"'/g' /opt/quorum-deploy/source/cakeshop/application.properties
 
 # [Re]build docker images if desired
 if [[ "$Rebuild" = true ]]; then

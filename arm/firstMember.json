@@ -227,7 +227,21 @@
               "destinationAddressPrefix": "*",
               "access": "Allow",
               "priority": 160,
-              "direction": "Outbound"
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "geth-rpc",
+            "properties": {
+              "description": "Allow Geth RPC traffic inbound",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "8545",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 170,
+              "direction": "Inbound"
             }
           },
           {
@@ -240,7 +254,7 @@
               "sourceAddressPrefix": "internet",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 170,
+              "priority": 180,
               "direction": "Inbound"
             }
           }
