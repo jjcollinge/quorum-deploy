@@ -65,5 +65,17 @@ The templates requires an Azure Service Principal registered with owner permissi
 ```
 6. Your geth client should now be connected. Grab your IP or DNS name from the deployment outputs or the Azure portal and visit your cakeshop portal at http://{fqdn}.com:8080/cakeshop
 
+## Usage (Additionl nodes)
+Follow the steps for the first node above but invoke the deployment script using the additional member template instead.
+
+```
+    ./deploy-node.sh -n myrg -l westeurope -t ./arm/additionalMember.json -p ./arm/additionalMember.parameters.json -d ./additionalMemberNode
+```
+
+Once the deployment has completed, you should have a quorum deployment that is connected to your first member node.
+
+**NOTE:** This deployment will only run a geth and constellation node. No cakeshop or additional services will be deployed.
+Once the deployment has completed
+
 ## Diagram
 <img src="images/quorum-deploy.png?raw=true" />
