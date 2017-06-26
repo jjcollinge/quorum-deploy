@@ -22,10 +22,10 @@ The templates requires an Azure Service Principal registered with owner permissi
 
 ## Usage (Example node)
 
-1. Open and complete the empty fields in the configuration files to work with your own Azure subscription
+1. Complete the required configuration:
 
-* ./arm/firstMember.parameters.json
-* ./example-node/config.json
+* ./arm/firstMember.parameters.json - unique dns name, vm username, vm password
+* ./example-node/config.json - azure details
 
 2. Run the deploy node script and target the example-node configuration
 
