@@ -87,7 +87,13 @@ az storage blob download -c node -n files.zip -f /opt/quorum-deploy/node.zip 2>&
 log "Expanding archive"
 mkdir -p /opt/quorum-deploy/node
 unzip /opt/quorum-deploy/node.zip -d /opt/quorum-deploy/node 2>&1 >> $LOG_FILE
-[ "$(ls -A /opt/quorum-deploy/node)" ] && log "Node expanded successfully" || log "Node is empty, something went wrong"; exit 1
+# Check node was expanded correctly
+if [ "$(ls -A /opt/quorum-deploy/node)" ]; then
+  log "Node expanded successfully"
+else
+  log "Node is empty, something went wrong"
+  exit 1
+fi
 
 # Create an Azure storage table
 log "Creating Azure storage table for bootnode registry"
