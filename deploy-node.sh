@@ -67,19 +67,15 @@ log "Grabbing Azure details from config file $NodeDir/config"
 AzureTenant=$(cat $NodeDir/config.json | grep "AzureTenant" | awk '{ print $2 }')
 AzureTenant="${AzureTenant%\"*}"
 AzureTenant=$(echo "$AzureTenant" | tr -d '",')
-echo "AzureTenant: $AzureTenant"
 AzureSPNAppId=$(cat $NodeDir/config.json | grep "AzureSPNAppId" | awk '{ print $2 }')
 AzureSPNAppId="${AzureSPNAppId%\"*}"
 AzureSPNAppId=$(echo "$AzureSPNAppId" | tr -d '",')
-echo "AzureSPNAppId: $AzureSPNAppId"
 AzureSPNPassword=$(cat $NodeDir/config.json | grep "AzureSPNPassword" | awk '{ print $2 }')
 AzureSPNPassword="${AzureSPNPassword%\"*}"
 AzureSPNPassword="${AzureSPNPassword#\"}"
-echo "AzureSPNPassword: $AzureSPNPassword"
 AzureSubscriptionId=$(cat $NodeDir/config.json | grep "AzureSubscriptionId" | awk '{ print $2 }')
 AzureSubscriptionId="${AzureSubscriptionId%\"*}"
 AzureSubscriptionId="${AzureSubscriptionId#\"}"
-echo "AzureSubscriptionId: $AzureSubscriptionId"
 
 log "Logging into Azure with service principal"
 az login --service-principal -u $AzureSPNAppId -p $AzureSPNPassword --tenant $AzureTenant 2>&1 >> $LOG_FILE
