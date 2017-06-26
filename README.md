@@ -66,4 +66,4 @@ The templates requires an Azure Service Principal registered with owner permissi
 6. Your geth client should now be connected. Grab your IP or DNS name from the deployment outputs or the Azure portal and visit your cakeshop portal at http://{fqdn}.com:8080/cakeshop
 
 ## Diagram
-![](https://raw.githubusercontent.com/jjcollinge/quorum-deploy/master/images/quorum-deploy.png)
+![](images/quorum-deploy.png?raw=true )
