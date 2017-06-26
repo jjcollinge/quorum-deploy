@@ -20,6 +20,23 @@ Other than the above requirements, there is no installation process for quorum-d
 ## Prerequiste
 The templates requires an Azure Service Principal registered with owner permissions in the Azure subscription you intend to use. For documentation on how to do this, please use [this link](https://github.com/Azure/azure-docs-cli-python/blob/master/docs-ref-conceptual/create-an-azure-service-principal-azure-cli.md)
 
+## Usage (Example node)
+
+1. Open and complete the empty fields in the configuration files to work with your own Azure subscription
+
+* ./arm/firstMember.parameters.json
+* ./example-node/config.json
+
+2. Run the deploy node script and target the example-node configuration
+
+```
+    ./deploy-node.sh -n myrg -l westeurope -t ./arm/firstMember.json -p firstMember.parameters.json -d ./example-node
+```
+ 
+3. Grab your deployments public ip address and go explore your deployment
+
+4. Your geth client should now be connected. Grab your IP or DNS name from the deployment outputs or the Azure portal and visit your cakeshop portal at http://<fqdn>.com:8080/cakeshop
+
 ## Usage (Custom node)
 
 1. The first thing to do is setup your nodes quorum configuration. Do this by creating a new folder `mkdir -p node` in the root of the repo.
@@ -46,24 +63,6 @@ The templates requires an Azure Service Principal registered with owner permissi
   -p parameterfile     specify an arm parameters file
   -d node     specify a local node directory
 ```
-6. Grab your deployments public ip address and go explore your deployment
+6. Your geth client should now be connected. Grab your IP or DNS name from the deployment outputs or the Azure portal and visit your cakeshop portal at http://<fqdn>.com:8080/cakeshop
 
-6a. Cakeshop should be available at http://fqdn.com:8080/cakeshop
-
-## Usage (Example node)
-
-1. Open and complete the empty fields in the configuration files to work with your own Azure subscription
-
-* ./arm/firstMember.parameters.json
-* ./example-node/config.json
-
-2. Run the deploy node script and target the example-node configuration
-
-```
-    ./deploy-node.sh -n myrg -l westeurope -t ./arm/firstMember.json -p firstMember.parameters.json -d ./example-node
-```
- 
-3. Grab your deployments public ip address and go explore your deployment
-
-3a. Cakeshop should be available at http://fqdn.com:8080/cakeshop
 
