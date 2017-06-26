@@ -37,6 +37,4 @@ services:
       - "8080:8080"
     depends_on:
       - geth-svc
-    links:
-      - geth-svc
     restart: always
