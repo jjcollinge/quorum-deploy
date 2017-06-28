@@ -93,5 +93,7 @@ Follow the steps for creating a custom node above. However, note these differenc
 
 3. Once the deployment has completed, you quorum node should be connected to *atleast* the first member in the network. **NOTE:** This deployment will not stand up a Cakeshop, LogScrapper or Bootnode container.
 
+4. If the new member has a `voter` and/or `blockmaker` role and is not defined within the `genesis.json` file as such. An existing member with the desired role needs to grant them permissions. This can be done by invoking either the `addVoter(0x...)` or `addBlockmaker(0x...)` functions against the [block_voting](https://github.com/jpmorganchase/quorum/blob/master/core/quorum/block_voting.sol) contract. I've included some helper scripts under `./source/geth/utils/` for doing this: `./source/geth/utils/addVoter "0x..."` on an existing node.
+
 ## Diagram
 <img src="images/quorum-deploy.png?raw=true" />
